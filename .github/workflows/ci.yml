@@ -1,0 +1,18 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Real test matrix lives in this workflow once the templates land
+# (see the README for the planned set). For now the job exists so
+# that branch protection can require it to pass and so the badge
+# in the README is wired up.
+
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "templates land in upcoming commits — see README"

@@ -1,0 +1,6 @@
+# Top-level cargo-generate config. Each subdirectory under
+# `templates/<name>/` is a usable template; per-template placeholders
+# live in that subdirectory's own `cargo-generate.toml`.
+
+[template]
+cargo_generate_version = ">=0.18.0"

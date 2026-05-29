@@ -1,0 +1,12 @@
+# cargo-generate verification scratch dirs
+_verify*/
+.test-*/
+
+# editor
+.idea/
+.vscode/
+.DS_Store
+
+# rust
+target/
+Cargo.lock
