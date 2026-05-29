@@ -1,0 +1,9 @@
+[package]
+name = "desktop"
+version = "0.1.0"
+edition = "2024"
+authors = ["{{authors}}"]
+
+[dependencies]
+mirui = { version = "{{mirui-version}}", features = ["sdl"] }
+app = { path = "../../app", features = ["std"] }

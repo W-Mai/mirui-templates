@@ -1,0 +1,9 @@
+[workspace]
+resolver = "2"
+members = ["app", "targets/*"]
+
+[profile.release]
+opt-level = "s"
+lto = "fat"
+codegen-units = 1
+strip = true

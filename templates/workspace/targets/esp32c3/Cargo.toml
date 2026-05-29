@@ -1,0 +1,17 @@
+[package]
+name = "target-esp32c3"
+version = "0.1.0"
+edition = "2024"
+authors = ["{{authors}}"]
+
+# Versions tracked against mirui-examples/examples/esp32c3-animation.
+[dependencies]
+mirui = { version = "{{mirui-version}}", default-features = false, features = ["quad-aa"] }
+app = { path = "../../app", default-features = false }
+
+esp-hal = { version = "1.1.0", features = ["esp32c3", "unstable"] }
+esp-alloc = "0.7"
+esp-println = { version = "0.14", features = ["esp32c3"] }
+esp-bootloader-esp-idf = { version = "0.5.0", features = ["esp32c3"] }
+
+critical-section = "1.2"
