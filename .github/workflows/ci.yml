@@ -5,14 +5,96 @@ on:
     branches: [main]
   pull_request:
 
-# Real test matrix lives in this workflow once the templates land
-# (see the README for the planned set). For now the job exists so
-# that branch protection can require it to pass and so the badge
-# in the README is wired up.
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_GENERATE_VERSION: "0.21"
 
 jobs:
-  noop:
+  # SDL desktop template — single crate, host build
+  sdl-only:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: echo "templates land in upcoming commits — see README"
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: sudo apt-get update && sudo apt-get install -y libsdl2-dev
+      - name: Install cargo-generate
+        run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
+      - name: Generate
+        run: |
+          cargo generate \
+            --path templates/sdl-only \
+            --name testfoo \
+            --define mirui-version=0.23 \
+            --silent
+      - name: Build
+        run: cd testfoo && cargo build
+
+  # Cargo workspace template — desktop binary on host, esp32c3 binary
+  # cross-compiled to riscv32imc.
+  workspace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: riscv32imc-unknown-none-elf
+      - uses: Swatinem/rust-cache@v2
+      - run: sudo apt-get update && sudo apt-get install -y libsdl2-dev
+      - name: Install cargo-generate
+        run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
+      - name: Generate
+        run: |
+          cargo generate \
+            --path templates/workspace \
+            --name testfoo \
+            --define mirui-version=0.23 \
+            --silent
+      - name: Build desktop crate
+        run: cd testfoo && cargo build -p desktop
+      - name: Build esp32c3 crate (cross to riscv32imc)
+        run: cd testfoo/targets/esp32c3 && cargo build --release
+
+  # Single-target ESP32-C3 template — cross-compiled to riscv32imc.
+  esp32c3:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: riscv32imc-unknown-none-elf
+      - uses: Swatinem/rust-cache@v2
+      - name: Install cargo-generate
+        run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
+      - name: Generate
+        run: |
+          cargo generate \
+            --path templates/esp32c3 \
+            --name testfoo \
+            --define mirui-version=0.23 \
+            --silent
+      - name: Build
+        run: cd testfoo && cargo build --release
+
+  # wasm template intentionally has no build job: the `web-canvas`
+  # feature on mirui isn't shipped yet, so `cargo build` is expected
+  # to fail. Verify the template generates with the right placeholder
+  # substitution and the README's warning is in place.
+  wasm-generate-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-generate
+        run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
+      - name: Generate
+        run: |
+          cargo generate \
+            --path templates/wasm \
+            --name testfoo \
+            --define mirui-version=0.23 \
+            --silent
+      - name: Verify placeholder substitution
+        run: |
+          grep -q 'name = "testfoo"' testfoo/Cargo.toml
+          grep -q 'placeholder' testfoo/README.md
