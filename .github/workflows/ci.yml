@@ -76,15 +76,18 @@ jobs:
       - name: Build
         run: cd testfoo && cargo build --release
 
-  # wasm template intentionally has no build job: the `web-canvas`
-  # feature on mirui isn't shipped yet, so `cargo build` is expected
-  # to fail. Verify the template generates with the right placeholder
-  # substitution and the README's warning is in place.
-  wasm-generate-only:
+  # wasm template — generate, then build for wasm32-unknown-unknown
+  # against the published mirui to confirm the `web-canvas` feature
+  # resolves cleanly. The wasm-bindgen post-process step is skipped
+  # in CI; users run it locally.
+  wasm:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
       - name: Install cargo-generate
         run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
       - name: Generate
@@ -92,9 +95,11 @@ jobs:
           cargo generate \
             --path templates/wasm \
             --name testfoo \
-            --define mirui-version=0.23 \
+            --define mirui-version=0.25 \
             --silent
       - name: Verify placeholder substitution
         run: |
           grep -q 'name = "testfoo"' testfoo/Cargo.toml
-          grep -q 'placeholder' testfoo/README.md
+          grep -q 'testfoo' testfoo/index.html
+      - name: Build
+        run: cd testfoo && cargo build --target wasm32-unknown-unknown

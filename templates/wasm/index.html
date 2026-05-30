@@ -1,29 +1,26 @@
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
+  <head>
+    <meta charset="utf-8" />
     <title>{{project-name}}</title>
     <style>
-        html, body { margin: 0; padding: 0; height: 100%; background: #0d1117; color: #c9d1d9; font-family: system-ui, sans-serif; }
-        #mirui-canvas { display: block; margin: 0 auto; background: #161b22; image-rendering: pixelated; }
-        .notice { padding: 1rem; font-size: 0.9rem; opacity: 0.7; }
+      html, body { margin: 0; height: 100%; background: #181a22; }
+      body { display: flex; align-items: center; justify-content: center; }
+      #mirui {
+        width: 480px;
+        height: 320px;
+        max-width: 100%;
+        max-height: 100%;
+        touch-action: none;
+        outline: none;
+      }
     </style>
-</head>
-<body>
-    <p class="notice">
-        {{project-name}} — placeholder. The mirui web-canvas backend
-        has not shipped yet, so this page will print a console warning
-        and do nothing else. See the README.
-    </p>
-    <canvas id="mirui-canvas" width="480" height="320"></canvas>
+  </head>
+  <body>
+    <canvas id="mirui" tabindex="0"></canvas>
     <script type="module">
-        // Adjust the import path if you customise the wasm-bindgen
-        // output directory. Default for `wasm-pack build --target web`.
-        import init from "./pkg/{{project-name}}.js";
-        init().catch(e => {
-            document.querySelector(".notice").textContent =
-                "Failed to load wasm: " + e + " — did you run `wasm-pack build --target web`?";
-        });
+      import init from "./pkg/{{crate_name}}.js";
+      init();
     </script>
-</body>
+  </body>
 </html>

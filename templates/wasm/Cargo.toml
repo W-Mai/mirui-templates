@@ -7,16 +7,20 @@ authors = ["{{authors}}"]
 [lib]
 crate-type = ["cdylib"]
 
-# NOTE: this template is a placeholder. The `web-canvas` feature on
-# mirui does not exist as of {{mirui-version}}; the template will not
-# build until the WebAssembly Surface backend ships. See README for
-# the timeline.
 [dependencies]
-mirui = { version = "{{mirui-version}}", features = ["web-canvas"] }
-wasm-bindgen = "0.2"
-web-sys = { version = "0.3", features = ["HtmlCanvasElement", "CanvasRenderingContext2d", "Window", "Document"] }
-js-sys = "0.3"
+mirui = { version = "{{mirui-version}}", default-features = false, features = ["web-canvas"] }
+mirui-macros = "{{mirui-version}}"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2.122"
+web-sys = { version = "0.3.99", features = [
+    "Document",
+    "HtmlCanvasElement",
+    "Window",
+] }
+console_error_panic_hook = "0.1"
 
 [profile.release]
 opt-level = "z"
 lto = true
+codegen-units = 1

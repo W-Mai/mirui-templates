@@ -3,6 +3,6 @@ cargo_generate_version = ">=0.18.0"
 
 [placeholders.mirui-version]
 type = "string"
-prompt = "mirui version to depend on (note: web-canvas backend not yet shipped)"
+prompt = "mirui version to depend on"
 default = "0.25"
 regex = "^\\d+\\.\\d+(\\.\\d+)?$"
