@@ -19,7 +19,7 @@ cargo install cargo-generate
 | `sdl-only` | Single-crate SDL desktop project. ~5 minutes from zero to a window. |
 | `esp32c3` | Single-crate ESP32-C3 embedded project, framebuffer-driven, esp-hal stack. |
 | `workspace` | Cargo workspace with a shared UI library and one binary crate per target (`targets/desktop`, `targets/esp32c3`). Globs in `targets/*` so adding a new MCU is `cp -r` plus four edits. |
-| `wasm` | Stub for an upcoming `web-canvas` Surface backend. **Does not build yet** — see the template's README for the timeline. |
+| `wasm` | Browser target on the `web-canvas` (Canvas 2D) Surface backend. Builds and serves with [trunk](https://trunkrs.dev). |
 
 ## Use a template
 

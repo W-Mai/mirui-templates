@@ -8,6 +8,20 @@ a matching commit here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Changed
+
+- `wasm` template now builds and serves with [trunk](https://trunkrs.dev):
+  `index.html` carries a `<link data-trunk rel="rust">`, a `Trunk.toml`
+  pins dist/serve/watch, and the README documents `trunk serve` /
+  `trunk build --release`. The manual `wasm-bindgen` + `python -m
+  http.server` steps are gone. `wasm-opt` runs in release with
+  `--all-features` to accept rustc's bulk-memory output.
+- `workspace` template gains a `targets/wasm` member: the same
+  `app::build_ui` shared library now drives a browser build through
+  the `web-canvas` backend, alongside desktop and ESP32-C3.
+
 ## [0.1.0] — 2026-05-29
 
 ### Added

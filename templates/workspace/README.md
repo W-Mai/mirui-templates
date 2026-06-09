@@ -1,8 +1,9 @@
 # {{project-name}}
 
 A Cargo workspace that drives the same [mirui](https://github.com/W-Mai/mirui)
-UI from multiple targets — a desktop binary against SDL2 and an
-ESP32-C3 binary against esp-hal — without duplicating the UI code.
+UI from multiple targets — a desktop binary against SDL2, an
+ESP32-C3 binary against esp-hal, and a browser build against the
+`web-canvas` backend — without duplicating the UI code.
 
 ## Layout
 
@@ -16,11 +17,16 @@ ESP32-C3 binary against esp-hal — without duplicating the UI code.
     ├── desktop/           # SDL2 binary
     │   ├── Cargo.toml
     │   └── src/main.rs
-    └── esp32c3/           # ESP32-C3 binary, framebuffer + esp-hal stack
+    ├── esp32c3/           # ESP32-C3 binary, framebuffer + esp-hal stack
+    │   ├── Cargo.toml
+    │   ├── .cargo/config.toml
+    │   ├── rust-toolchain.toml
+    │   └── src/main.rs
+    └── wasm/              # browser build, web-canvas backend via trunk
         ├── Cargo.toml
-        ├── .cargo/config.toml
-        ├── rust-toolchain.toml
-        └── src/main.rs
+        ├── Trunk.toml
+        ├── index.html
+        └── src/lib.rs
 ```
 
 The `targets/*` glob in the workspace manifest picks up new
@@ -57,6 +63,23 @@ current directory's tree, and the `riscv32imc-unknown-none-elf` build
 target lives in `targets/esp32c3/.cargo/config.toml`. Running
 `cargo build -p target-esp32c3` from the workspace root falls back to
 the host architecture and fails to compile `portable-atomic`.
+
+Web (browser):
+
+```bash
+rustup target add wasm32-unknown-unknown
+cargo install --locked trunk
+cd targets/wasm
+trunk serve          # dev server at http://127.0.0.1:8080 with live reload
+trunk build --release # production bundle in dist/
+```
+
+[trunk](https://trunkrs.dev) handles the wasm build, `wasm-bindgen`,
+`wasm-opt`, and serving. `trunk serve` uses the dev profile (fast
+rebuild, large wasm); `--release` applies the workspace
+`[profile.release]` and shrinks the output. `wasm-opt` runs only in
+release with `--all-features` (wired in `index.html`) so it accepts
+the bulk-memory ops rustc emits for wasm32.
 
 (The `target-` prefix on the package name avoids a collision with the
 `esp32c3` peripheral-access crate that esp-hal pulls in transitively.
@@ -95,6 +118,7 @@ needs it:
 
 - `targets/desktop` enables `app/std` (SDL backend pulls in `std`).
 - `targets/esp32c3` keeps `app` at `default-features = false`.
+- `targets/wasm` enables `app/std` (the `web-canvas` surface needs `std`).
 
 Add new mirui usage inside `app/src/lib.rs` and both targets pick it
 up unchanged. If you reach for an `std::` API in `app`, gate it with
