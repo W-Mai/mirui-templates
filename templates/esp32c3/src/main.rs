@@ -49,9 +49,7 @@ fn main() -> ! {
     let mut app = App::new(backend);
     app.with_default_widgets().with_default_systems();
 
-    let root = WidgetBuilder::new(&mut app.world)
-        .bg_color(ColorToken::Surface)
-        .id();
+    let root = app.spawn_root().id();
 
     ui! {
         :(
@@ -59,14 +57,13 @@ fn main() -> ! {
             world: &mut app.world
         :)
 
-        hello (
+        View (
             bg_color: ColorToken::Primary,
             text_color: ColorToken::OnPrimary,
             text: "{{project-name}}"
-        ) {}
+        )
     };
 
-    app.set_root(root);
     app.run();
     unreachable!();
 }

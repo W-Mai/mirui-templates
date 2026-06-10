@@ -12,16 +12,16 @@ pub fn build_ui(world: &mut World, parent: Entity) {
             world: world
         :)
 
-        column (direction: FlexDirection::Column, grow: 1.0) {
-            header (
+        Column (grow: 1.0) {
+            View (
                 bg_color: ColorToken::Primary,
                 text_color: ColorToken::OnPrimary,
                 height: 40,
                 text: "{{project-name}}",
                 border_radius: 8
-            ) {}
-            content (bg_color: ColorToken::SurfaceVariant, grow: 1.0) {}
-            footer (height: 30, text: "Built with mirui") {}
+            )
+            View (bg_color: ColorToken::SurfaceVariant, grow: 1.0)
+            View (height: 30, text: "Built with mirui")
         }
     };
 }

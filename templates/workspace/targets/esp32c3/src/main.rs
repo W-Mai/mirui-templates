@@ -45,13 +45,10 @@ fn main() -> ! {
     let mut app_inst = App::new(backend);
     app_inst.with_default_widgets().with_default_systems();
 
-    let root = WidgetBuilder::new(&mut app_inst.world)
-        .bg_color(ColorToken::Surface)
-        .id();
+    let root = app_inst.spawn_root().id();
 
     app::build_ui(&mut app_inst.world, root);
 
-    app_inst.set_root(root);
     app_inst.run();
     unreachable!();
 }
