@@ -25,7 +25,7 @@ jobs:
           cargo generate \
             --path templates/sdl-only \
             --name testfoo \
-            --define mirui-version=0.23 \
+            --define mirui-version=0.28 \
             --silent
       - name: Build
         run: cd testfoo && cargo build
@@ -48,7 +48,7 @@ jobs:
           cargo generate \
             --path templates/workspace \
             --name testfoo \
-            --define mirui-version=0.23 \
+            --define mirui-version=0.28 \
             --silent
       - name: Build desktop crate
         run: cd testfoo && cargo build -p desktop
@@ -71,7 +71,7 @@ jobs:
           cargo generate \
             --path templates/esp32c3 \
             --name testfoo \
-            --define mirui-version=0.23 \
+            --define mirui-version=0.28 \
             --silent
       - name: Build
         run: cd testfoo && cargo build --release
@@ -95,7 +95,7 @@ jobs:
           cargo generate \
             --path templates/wasm \
             --name testfoo \
-            --define mirui-version=0.25 \
+            --define mirui-version=0.28 \
             --silent
       - name: Verify placeholder substitution
         run: |
