@@ -22,10 +22,11 @@ jobs:
         run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
       - name: Generate
         run: |
+          MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/sdl-only/cargo-generate.toml)
           cargo generate \
             --path templates/sdl-only \
             --name testfoo \
-            --define mirui-version=0.28 \
+            --define mirui-version=$MIRUI_VERSION \
             --silent
       - name: Build
         run: cd testfoo && cargo build
@@ -45,10 +46,11 @@ jobs:
         run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
       - name: Generate
         run: |
+          MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/workspace/cargo-generate.toml)
           cargo generate \
             --path templates/workspace \
             --name testfoo \
-            --define mirui-version=0.28 \
+            --define mirui-version=$MIRUI_VERSION \
             --silent
       - name: Build desktop crate
         run: cd testfoo && cargo build -p desktop
@@ -68,10 +70,11 @@ jobs:
         run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
       - name: Generate
         run: |
+          MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/esp32c3/cargo-generate.toml)
           cargo generate \
             --path templates/esp32c3 \
             --name testfoo \
-            --define mirui-version=0.28 \
+            --define mirui-version=$MIRUI_VERSION \
             --silent
       - name: Build
         run: cd testfoo && cargo build --release
@@ -92,10 +95,11 @@ jobs:
         run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
       - name: Generate
         run: |
+          MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/wasm/cargo-generate.toml)
           cargo generate \
             --path templates/wasm \
             --name testfoo \
-            --define mirui-version=0.28 \
+            --define mirui-version=$MIRUI_VERSION \
             --silent
       - name: Verify placeholder substitution
         run: |
