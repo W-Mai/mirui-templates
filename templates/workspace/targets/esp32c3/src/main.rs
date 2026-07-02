@@ -5,8 +5,8 @@ extern crate alloc;
 
 use esp_alloc as _;
 
-use mirui::render::texture::ColorFormat;
 use mirui::prelude::*;
+use mirui::render::texture::ColorFormat;
 use mirui::surface::framebuf::FramebufSurface;
 use mirui::types::Rect;
 

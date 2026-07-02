@@ -2,8 +2,8 @@
 
 #![cfg(target_arch = "wasm32")]
 
-use mirui::render::web_canvas::WebCanvasRendererFactory;
 use mirui::prelude::*;
+use mirui::render::web_canvas::WebCanvasRendererFactory;
 use mirui::surface::web_canvas::WebCanvasSurface;
 use wasm_bindgen::JsCast;
 use wasm_bindgen::prelude::*;

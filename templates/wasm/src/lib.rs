@@ -2,9 +2,10 @@
 
 #![cfg(target_arch = "wasm32")]
 
-use mirui::render::web_canvas::WebCanvasRendererFactory;
 use mirui::prelude::*;
+use mirui::render::web_canvas::WebCanvasRendererFactory;
 use mirui::surface::web_canvas::WebCanvasSurface;
+use mirui::ui::widgets::Text;
 use wasm_bindgen::JsCast;
 use wasm_bindgen::prelude::*;
 
@@ -34,16 +35,20 @@ pub fn start() {
             world: &mut app.world
         :)
 
-        Column (grow: 1.0) {
+        Column (grow: 1.0, padding: Padding::all(16)) {
             View (
                 bg_color: ColorToken::Primary,
                 text_color: ColorToken::OnPrimary,
                 height: 48,
-                text: "{{project-name}}",
-                border_radius: 8
-            )
+                border_radius: 8,
+                padding: Padding::all(12)
+            ) {
+                Text ("{{project-name}}")
+            }
             View (bg_color: ColorToken::SurfaceVariant, grow: 1.0)
-            View (height: 32, text: "mirui · web-canvas")
+            View (height: 32, padding: Padding::all(6)) {
+                Text ("mirui · web-canvas")
+            }
         }
     };
 

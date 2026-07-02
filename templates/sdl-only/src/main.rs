@@ -1,5 +1,6 @@
 use mirui::prelude::*;
 use mirui::surface::sdl::SdlSurface;
+use mirui::ui::widgets::Text;
 
 fn main() {
     let backend = SdlSurface::new("{{project-name}}", 480, 320);
@@ -14,16 +15,20 @@ fn main() {
             world: &mut app.world
         :)
 
-        Column (grow: 1.0) {
+        Column (grow: 1.0, padding: Padding::all(16)) {
             View (
                 bg_color: ColorToken::Primary,
                 text_color: ColorToken::OnPrimary,
                 height: 40,
-                text: "{{project-name}}",
-                border_radius: 8
-            )
+                border_radius: 8,
+                padding: Padding::all(10)
+            ) {
+                Text ("{{project-name}}")
+            }
             View (bg_color: ColorToken::SurfaceVariant, grow: 1.0)
-            View (height: 30, text: "Built with mirui")
+            View (height: 30, padding: Padding::all(6)) {
+                Text ("Built with mirui")
+            }
         }
     };
 

@@ -5,10 +5,11 @@ extern crate alloc;
 
 use esp_alloc as _;
 
-use mirui::render::texture::ColorFormat;
 use mirui::prelude::*;
+use mirui::render::texture::ColorFormat;
 use mirui::surface::framebuf::FramebufSurface;
 use mirui::types::Rect;
+use mirui::ui::widgets::Text;
 
 esp_bootloader_esp_idf::esp_app_desc!();
 
@@ -60,8 +61,10 @@ fn main() -> ! {
         View (
             bg_color: ColorToken::Primary,
             text_color: ColorToken::OnPrimary,
-            text: "{{project-name}}"
-        )
+            padding: Padding::all(8)
+        ) {
+            Text ("{{project-name}}")
+        }
     };
 
     app.run();
