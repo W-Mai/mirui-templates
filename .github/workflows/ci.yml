@@ -10,6 +10,13 @@ env:
   CARGO_GENERATE_VERSION: "0.21.0"
 
 jobs:
+  template-consistency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check shared template contracts
+        run: python3 scripts/check_template_consistency.py
+
   # SDL desktop template — single crate, host build
   sdl-only:
     runs-on: ubuntu-latest
