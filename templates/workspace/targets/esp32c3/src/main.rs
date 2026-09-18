@@ -8,7 +8,6 @@ use esp_alloc as _;
 use mirui::prelude::*;
 use mirui::render::texture::ColorFormat;
 use mirui::surface::framebuf::FramebufSurface;
-use mirui::types::Rect;
 
 esp_bootloader_esp_idf::esp_app_desc!();
 
@@ -35,9 +34,10 @@ fn main() -> ! {
     // ST7735S setup (board.rs covers SPI + DMA + reset):
     // https://github.com/W-Mai/mirui-examples/tree/main/examples/esp32c3-animation
     let backend = FramebufSurface::with_format(
-        W, H,
+        W,
+        H,
         ColorFormat::RGB565Swapped,
-        |_bytes: &[u8], _area: &Rect| {
+        |_bytes: &[u8], _area: PhysicalRect| {
             // TODO: write `_bytes` to the LCD window described by `_area`
         },
     );

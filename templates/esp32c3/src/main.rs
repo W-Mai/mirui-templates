@@ -8,7 +8,6 @@ use esp_alloc as _;
 use mirui::prelude::*;
 use mirui::render::texture::ColorFormat;
 use mirui::surface::framebuf::FramebufSurface;
-use mirui::types::Rect;
 use mirui::ui::widgets::Text;
 
 esp_bootloader_esp_idf::esp_app_desc!();
@@ -40,9 +39,10 @@ fn main() -> ! {
     // when the host MCU is little-endian; swap to `RGB565` if your panel
     // takes the bytes the other way.
     let backend = FramebufSurface::with_format(
-        W, H,
+        W,
+        H,
         ColorFormat::RGB565Swapped,
-        |_bytes: &[u8], _area: &Rect| {
+        |_bytes: &[u8], _area: PhysicalRect| {
             // TODO: write `_bytes` to the LCD window described by `_area`
         },
     );

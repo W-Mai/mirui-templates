@@ -57,6 +57,15 @@ just `cargo run --release`.
 These track `mirui-examples/examples/esp32c3-animation`. Bump them
 together when esp-hal cuts a new minor.
 
+## Optional features
+
+| Feature | Effect |
+|---------|--------|
+| `quad-aa` | Enables antialiasing for transformed quads at additional CPU cost |
+| `perf` | Enables mirui frame timing resources |
+
+Both features are disabled by default. Build with `cargo build --release --features quad-aa` when edge quality is more important than the smallest firmware path.
+
 ## License
 
 MIT — replace with your own as needed.

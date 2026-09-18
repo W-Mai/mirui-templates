@@ -55,7 +55,10 @@ jobs:
       - name: Build desktop crate
         run: cd testfoo && cargo build -p desktop
       - name: Build esp32c3 crate (cross to riscv32imc)
-        run: cd testfoo/targets/esp32c3 && cargo build --release
+        run: |
+          cd testfoo/targets/esp32c3
+          cargo build --release
+          cargo build --release --features quad-aa,perf
 
   # Single-target ESP32-C3 template — cross-compiled to riscv32imc.
   esp32c3:
@@ -77,7 +80,10 @@ jobs:
             --define mirui-version=$MIRUI_VERSION \
             --silent
       - name: Build
-        run: cd testfoo && cargo build --release
+        run: |
+          cd testfoo
+          cargo build --release
+          cargo build --release --features quad-aa,perf
 
   # wasm template — generate, then build for wasm32-unknown-unknown
   # against the published mirui to confirm the `web-canvas` feature

@@ -58,6 +58,8 @@ cargo install espflash
 espflash flash --monitor ../../target/riscv32imc-unknown-none-elf/release/target-esp32c3
 ```
 
+The ESP target defaults to the smallest mirui configuration. Add `--features quad-aa` for transformed-edge antialiasing or `--features perf` for frame timing resources.
+
 The `cd` matters: cargo only reads `.cargo/config.toml` from the
 current directory's tree, and the `riscv32imc-unknown-none-elf` build
 target lives in `targets/esp32c3/.cargo/config.toml`. Running
@@ -95,8 +97,7 @@ and call it from `main` to drive a real LCD.
 
 ## Add a new target
 
-To add ESP32-S3, RP2040, STM32, or any other MCU, replicate one of the
-existing target directories:
+ESP32-C3 is the cross-built embedded target included in this template. ESP32-S3, RP2040, STM32, and other MCUs are extension points rather than verified boards in this repository. To add one, replicate the existing target directory:
 
 1. Copy a starting point: `cp -r targets/esp32c3 targets/<name>`.
 2. Update the new crate's `Cargo.toml` `[package].name` and BSP

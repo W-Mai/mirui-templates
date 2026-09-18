@@ -21,6 +21,18 @@ cargo install cargo-generate
 | `workspace` | Cargo workspace with a shared UI library and one binary crate per target (`targets/desktop`, `targets/esp32c3`). Globs in `targets/*` so adding a new MCU is `cp -r` plus four edits. |
 | `wasm` | Browser target on the `web-canvas` (Canvas 2D) Surface backend. Builds and serves with [trunk](https://trunkrs.dev). |
 
+## Backend and target coverage
+
+| Runtime | Template | mirui feature | Verification |
+|---------|----------|---------------|--------------|
+| SDL software | `sdl-only`, `workspace/targets/desktop` | `sdl` | CI build |
+| Browser Canvas 2D | `wasm`, `workspace/targets/wasm` | `web-canvas` | CI WebAssembly build |
+| ESP32-C3 framebuffer | `esp32c3`, `workspace/targets/esp32c3` | no backend feature | RISC-V cross-build; complete ST7735S wiring is verified in `mirui-examples` |
+
+mirui also exposes `sdl-gpu`, `wgpu`, `linux-fb`, `linux-drm`, and `nuttx`. These backends do not have dedicated generator templates in this repository. ESP32-S3, RP2040, STM32, and other MCUs can reuse the shared `no_std` app structure, but need target-specific allocator, clock, input, framebuffer flush, and panel code.
+
+The ESP32-C3 templates keep antialiasing and profiling explicit: enable `quad-aa` for transformed-edge quality or `perf` for frame timing. Both stay off by default so a generated firmware starts with the smaller embedded configuration.
+
 ## Use a template
 
 ```bash
@@ -62,7 +74,7 @@ backend, or a fully working wasm setup once `web-canvas` lands):
    declaring the placeholders.
 2. Verify locally:
    ```bash
-   cargo generate --path templates/<name> --name testfoo --define mirui-version=0.23
+   cargo generate --path templates/<name> --name testfoo --define mirui-version=0.44
    cd testfoo && cargo build  # or cargo build --release for embedded
    ```
 3. Add a job to `.github/workflows/ci.yml` that runs the same

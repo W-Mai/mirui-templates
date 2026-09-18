@@ -12,6 +12,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- ESP32-C3 framebuffer callbacks receive the clipped `PhysicalRect` value required by mirui 0.44.
+- ESP32-C3 templates expose and cross-build `quad-aa` and `perf` as opt-in Cargo features instead of forcing transformed-quad antialiasing into every firmware.
+- README target matrices distinguish CI-built templates, hardware-verified examples, available mirui backends, and unverified MCU extension points.
 - `wasm` template now builds and serves with [trunk](https://trunkrs.dev):
   `index.html` carries a `<link data-trunk rel="rust">`, a `Trunk.toml`
   pins dist/serve/watch, and the README documents `trunk serve` /
