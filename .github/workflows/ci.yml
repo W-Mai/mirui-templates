@@ -59,6 +59,10 @@ jobs:
             --path templates/workspace \
             --name testfoo \
             --define mirui-version=$MIRUI_VERSION \
+            --define android-backend=wgpu \
+            --define android-package=rs.mirui.testfoo \
+            --define ios-backend=wgpu \
+            --define ios-bundle-id=rs.mirui.testfoo \
             --silent
       - name: Build desktop crate
         run: cd testfoo && cargo build -p desktop
@@ -151,6 +155,11 @@ jobs:
             --define backend=${{ matrix.backend }} \
             --define android-package=rs.mirui.testfoo \
             --silent
+      - name: Configure preview signing
+        run: |
+          keytool -genkeypair -keystore /tmp/mirui-preview.keystore -storepass mirui-preview -keypass mirui-preview -alias mirui-preview -keyalg RSA -keysize 2048 -validity 2 -dname "CN=mirui CI preview"
+          echo "CARGO_APK_RELEASE_KEYSTORE=/tmp/mirui-preview.keystore" >> "$GITHUB_ENV"
+          echo "CARGO_APK_RELEASE_KEYSTORE_PASSWORD=mirui-preview" >> "$GITHUB_ENV"
       - name: Build
         run: cd testfoo && cargo apk build --release
       - name: Verify workspace target
@@ -171,11 +180,10 @@ jobs:
         run: |
           mkdir -p dist
           MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/android/cargo-generate.toml | head -1)
-          keytool -genkeypair -keystore /tmp/mirui-preview.keystore -storepass mirui-preview -keypass mirui-preview -alias mirui-preview -keyalg RSA -keysize 2048 -validity 2 -dname "CN=mirui CI preview"
           APK=$(find testfoo/target -type f -path '*/apk/*.apk' -print -quit)
           test -n "$APK"
           BUILD_TOOLS=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)
-          "$BUILD_TOOLS/apksigner" sign --ks /tmp/mirui-preview.keystore --ks-pass pass:mirui-preview --key-pass pass:mirui-preview --out "dist/mirui-android-${{ matrix.backend }}-preview.apk" "$APK"
+          cp "$APK" "dist/mirui-android-${{ matrix.backend }}-preview.apk"
           "$BUILD_TOOLS/apksigner" verify "dist/mirui-android-${{ matrix.backend }}-preview.apk"
           printf '{"repository":"%s","sha":"%s","mirui_version":"%s","backend":"%s","target":"aarch64-linux-android","profile":"release","signing":"ephemeral-test-key","rust":"%s"}\n' "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$MIRUI_VERSION" "${{ matrix.backend }}" "$(rustc -V)" > "dist/mirui-android-${{ matrix.backend }}-preview.json"
       - name: Upload Android preview

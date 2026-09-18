@@ -26,7 +26,8 @@ opt-level = "z"
 lto = true
 codegen-units = 1
 strip = true
-panic = "abort"""
+panic = "abort"
+"""
 
 
 @dataclass(frozen=True)
