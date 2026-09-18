@@ -54,7 +54,7 @@ jobs:
         run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
       - name: Generate
         run: |
-          MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/workspace/cargo-generate.toml)
+          MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/workspace/cargo-generate.toml | head -1)
           cargo generate \
             --path templates/workspace \
             --name testfoo \
