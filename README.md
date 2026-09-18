@@ -68,7 +68,7 @@ To propose a new template, such as an additional MCU or a different desktop back
 1. Add a canonical adapter under `components/targets/<name>/`, declare its standalone and workspace variants in `scripts/materialize_templates.py`, and add the public template metadata.
 2. Verify locally:
    ```bash
-   cargo generate --path templates/<name> --name testfoo --define mirui-version=0.45
+   cargo generate --path templates/<name> --name testfoo --define mirui-version=0.46
    cd testfoo && cargo build  # or cargo build --release for embedded
    ```
 3. Add a job to `.github/workflows/ci.yml` that runs the same `cargo generate` and target build so CI catches regressions.
