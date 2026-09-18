@@ -66,6 +66,8 @@ jobs:
             --silent
       - name: Build desktop crate
         run: cd testfoo && cargo build -p desktop
+      - name: Test shared interactive UI
+        run: cd testfoo && cargo test -p app --features std
       - name: Build esp32c3 crate (cross to riscv32imc)
         run: |
           cd testfoo/targets/esp32c3

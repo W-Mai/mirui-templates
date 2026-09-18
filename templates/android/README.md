@@ -16,7 +16,9 @@ The `wgpu` selection renders mirui commands directly with WGPU. The `sw` selecti
 
 The generated application follows Android configuration changes instead of locking one orientation. Its mirui `App`, ECS world, and reactive state survive NativeActivity suspend/resume while the native window and swapchain are recreated.
 
-`SoftwareUploadConfig::default()` uses a 1.0 render scale and a 16 MiB CPU framebuffer budget. Change those explicit values in `src/lib.rs` when a device needs a different memory/quality tradeoff. A resize above the budget keeps the last admitted framebuffer instead of allocating an unbounded replacement.
+`SoftwareUploadConfig::default()` uses native device density within a 32 MiB CPU framebuffer budget. If the native framebuffer exceeds the budget, mirui selects the highest fitting scale. Change the policy or budget in `src/lib.rs` when a device needs a different memory/quality tradeoff.
+
+The generated root keeps interactive content inside Android system bars and display cutouts. Call `app.spawn_root().ignore_safe_area().id()` only when fullscreen content should occupy those regions.
 
 View native logs while the application runs:
 

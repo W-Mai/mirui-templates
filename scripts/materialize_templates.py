@@ -14,6 +14,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 COMPONENTS = ROOT / "components"
 TEMPLATES = ROOT / "templates"
+MIRUI_REV = (COMPONENTS / "mirui-revision.txt").read_text().strip()
 
 RELEASE_PROFILE = """[profile.release]
 opt-level = "s"
@@ -63,7 +64,7 @@ def planned_files() -> dict[Path, bytes]:
     standalone_ui = render(COMPONENTS / "shared" / "ui.rs.in", {"CRATE_ATTR": ""})
     workspace_ui = render(
         COMPONENTS / "shared" / "ui.rs.in",
-        {"CRATE_ATTR": '#![cfg_attr(not(feature = "std"), no_std)]'},
+        {"CRATE_ATTR": '#![cfg_attr(not(feature = "std"), no_std)]\n'},
     )
 
     for target in TARGETS:
@@ -72,6 +73,7 @@ def planned_files() -> dict[Path, bytes]:
         workspace = TEMPLATES / "workspace" / "targets" / target.name
 
         standalone_replacements = {
+            "MIRUI_REV": MIRUI_REV,
             "PACKAGE_NAME": "{{project-name}}",
             "APP_DEPENDENCY": "",
             "APP_IMPORT": '#[path = "ui.rs"]\nmod template_app;',
@@ -79,6 +81,7 @@ def planned_files() -> dict[Path, bytes]:
             "RELEASE_PROFILE": target.release_profile,
         }
         workspace_replacements = {
+            "MIRUI_REV": MIRUI_REV,
             "PACKAGE_NAME": target.workspace_package,
             "APP_DEPENDENCY": 'app = { path = "../../app", features = ["std"] }'
             if target.name != "esp32c3"
@@ -104,6 +107,10 @@ def planned_files() -> dict[Path, bytes]:
         )
 
     files[TEMPLATES / "workspace" / "app" / "src" / "lib.rs"] = workspace_ui
+    files[TEMPLATES / "workspace" / "app" / "Cargo.toml"] = render(
+        COMPONENTS / "shared" / "app.Cargo.toml.in",
+        {"MIRUI_REV": MIRUI_REV},
+    )
 
     copied_platform_files = {
         "wasm": ("Trunk.toml", "index.html"),

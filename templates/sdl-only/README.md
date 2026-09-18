@@ -18,7 +18,7 @@ On Debian / Ubuntu: `apt-get install libsdl2-dev`.
 
 ## What's in this project
 
-- `Cargo.toml` pins `mirui = "{{mirui-version}}"` with the `sdl` feature.
+- `Cargo.toml` requires mirui `{{mirui-version}}`, pins an exact repository revision, and enables the `sdl` feature.
 - `src/main.rs` opens a 480×320 SDL window and stacks a header, content area, and footer. Replace the body with your own `ui!` tree.
 
 ## Where to go next

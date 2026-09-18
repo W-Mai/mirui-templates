@@ -45,19 +45,21 @@ cd hello-mirui
 cargo run
 ```
 
-Each template prompts for a project name and the mirui version to pin. Mobile templates also prompt for a rendering path and application identifier. The generated project's `Cargo.toml` and `README.md` are filled in from the prompts.
+Each template prompts for a project name and the compatible mirui version. Mobile templates also prompt for a rendering path and application identifier. Generated manifests resolve mirui from the exact revision recorded in `components/mirui-revision.txt` while retaining the prompted version requirement.
+
+The generated application opens an interactive responsive card with mode buttons and a live slider. The same UI source runs across desktop, browser, mobile, and embedded targets; mobile roots keep content inside the current safe area automatically.
 
 Successful `main` CI runs publish test-signed Android APKs and unsigned arm64 iOS Simulator archives on the mutable [`mobile-preview`](https://github.com/W-Mai/mirui-templates/releases/tag/mobile-preview) prerelease. Version tags receive the same normalized assets on their immutable release. The Android preview key is generated for each CI run and is not a production identity; physical iOS devices require an Apple signing team.
 
-## Pinning to a mirui release
+## Pinning mirui
 
-The templates default to whichever mirui version is current when this repo's `main` was last bumped (see the per-template `cargo-generate.toml` default). Pass `--define mirui-version=0.X` to override.
+The per-template `cargo-generate.toml` files define the default semver requirement. `components/mirui-revision.txt` defines the exact Git source revision used by every generated target. Pass `--define mirui-version=0.X` to change the compatibility requirement; update the revision file to move the shared source pin.
 
 ## Maintenance
 
-This repo tracks the [mirui](https://github.com/W-Mai/mirui) release cycle. When mirui ships a new minor, `cargo xtask templates-bump` inside the mirui repo updates the per-template `cargo-generate.toml` default and commits the bump here.
+This repo tracks the [mirui](https://github.com/W-Mai/mirui) release cycle. `cargo xtask templates-bump` inside the mirui repo updates the per-template `cargo-generate.toml` version default. The shared Git revision is maintained in `components/mirui-revision.txt`.
 
-The mirui version that ends up in a generated project's `Cargo.toml` comes from the cargo-generate prompt at generation time, not from the template files. `--define mirui-version=0.45` overrides the template default.
+The mirui version requirement in a generated project's `Cargo.toml` comes from the cargo-generate prompt. The exact source revision comes from the shared revision file.
 
 Target runtime adapters live under `components/`. Run `python3 scripts/materialize_templates.py write` after editing an adapter; `python3 scripts/materialize_templates.py check` verifies that committed standalone and workspace targets match the canonical source.
 

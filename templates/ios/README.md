@@ -15,4 +15,6 @@ The `wgpu` selection renders mirui commands directly with WGPU. The `sw` selecti
 
 The application supports iPhone and iPad portrait and landscape configurations. Its mirui `App`, ECS world, and reactive state survive normal suspend/resume while the drawable surface is recreated.
 
-`SoftwareUploadConfig::default()` uses a 1.0 render scale and a 16 MiB CPU framebuffer budget. Change those explicit values in `src/lib.rs` when a device needs a different memory/quality tradeoff. A resize above the budget keeps the last admitted framebuffer instead of allocating an unbounded replacement.
+`SoftwareUploadConfig::default()` uses native device density within a 32 MiB CPU framebuffer budget. If the native framebuffer exceeds the budget, mirui selects the highest fitting scale. Change the policy or budget in `src/lib.rs` when a device needs a different memory/quality tradeoff.
+
+Winit exposes the iOS drawable as its safe viewport, so the generated root does not apply a second inset around the Dynamic Island, home indicator, or system bars.

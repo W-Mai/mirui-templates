@@ -10,7 +10,7 @@ quad-aa = ["mirui/quad-aa"]
 perf = ["mirui/perf"]
 
 [dependencies]
-mirui = { version = "{{mirui-version}}", default-features = false }
+mirui = { version = "{{mirui-version}}", git = "https://github.com/W-Mai/mirui", rev = "@@MIRUI_REV@@", default-features = false }
 @@APP_DEPENDENCY@@
 
 esp-hal = { version = "1.1.0", features = ["esp32c3", "unstable"] }

@@ -1,0 +1,11 @@
+[package]
+name = "app"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+default = []
+std = ["mirui/std"]
+
+[dependencies]
+mirui = { version = "{{mirui-version}}", git = "https://github.com/W-Mai/mirui", rev = "@@MIRUI_REV@@", default-features = false, features = ["quad-aa"] }

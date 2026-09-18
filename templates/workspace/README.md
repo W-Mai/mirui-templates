@@ -2,6 +2,8 @@
 
 A Cargo workspace that drives the same [mirui](https://github.com/W-Mai/mirui) UI on desktop, WebAssembly, ESP32-C3, Android, and iOS.
 
+The shared application starts with an interactive mode card and live slider. Mobile roots respect the current safe area automatically, while desktop, browser, and embedded surfaces report zero insets.
+
 ## Layout
 
 ```

@@ -8,7 +8,7 @@ authors = ["{{authors}}"]
 crate-type = ["cdylib"]
 
 [dependencies]
-mirui = { version = "{{mirui-version}}", default-features = false, features = ["web-canvas"] }
+mirui = { version = "{{mirui-version}}", git = "https://github.com/W-Mai/mirui", rev = "39ed01becace7be4b533d43d2e3e5581a8448351", default-features = false, features = ["web-canvas"] }
 
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]

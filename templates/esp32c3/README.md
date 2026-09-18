@@ -34,7 +34,7 @@ With the runner configured in `.cargo/config.toml`, `cargo run --release` builds
 
 ## Pinned dependency versions
 
-- `mirui = "{{mirui-version}}"`
+- `mirui` requires `{{mirui-version}}` and resolves from the repository revision recorded by the template
 - `esp-hal = "1.1"`
 - `esp-alloc = "0.7"`
 - `esp-bootloader-esp-idf = "0.5"`
