@@ -1,9 +1,6 @@
 # {{project-name}}
 
-A Cargo workspace that drives the same [mirui](https://github.com/W-Mai/mirui)
-UI from multiple targets — a desktop binary against SDL2, an
-ESP32-C3 binary against esp-hal, and a browser build against the
-`web-canvas` backend — without duplicating the UI code.
+A Cargo workspace that drives the same [mirui](https://github.com/W-Mai/mirui) UI from an SDL2 desktop binary, an ESP32-C3 binary, and a browser build through the `web-canvas` backend.
 
 ## Layout
 
@@ -29,9 +26,7 @@ ESP32-C3 binary against esp-hal, and a browser build against the
         └── src/lib.rs
 ```
 
-The `targets/*` glob in the workspace manifest picks up new
-sub-directories automatically — the next section explains how to add
-one.
+The `targets/*` glob in the workspace manifest picks up new target directories automatically.
 
 ## Build and run
 
@@ -41,9 +36,7 @@ Desktop:
 cargo run -p desktop
 ```
 
-The first build pulls SDL2 from your system. On macOS Apple Silicon,
-SDL2 from Homebrew installs at `/opt/homebrew/lib/`, which the linker
-does not search by default — add it for this shell:
+The first build links SDL2 from the host system. On macOS Apple Silicon, Homebrew installs SDL2 at `/opt/homebrew/lib/`, which is outside the linker's default search list:
 
 ```bash
 export LIBRARY_PATH="/opt/homebrew/lib:$LIBRARY_PATH"
@@ -60,11 +53,7 @@ espflash flash --monitor ../../target/riscv32imc-unknown-none-elf/release/target
 
 The ESP target defaults to the smallest mirui configuration. Add `--features quad-aa` for transformed-edge antialiasing or `--features perf` for frame timing resources.
 
-The `cd` matters: cargo only reads `.cargo/config.toml` from the
-current directory's tree, and the `riscv32imc-unknown-none-elf` build
-target lives in `targets/esp32c3/.cargo/config.toml`. Running
-`cargo build -p target-esp32c3` from the workspace root falls back to
-the host architecture and fails to compile `portable-atomic`.
+The `cd` matters because Cargo reads `.cargo/config.toml` from the current directory's tree. The `riscv32imc-unknown-none-elf` target lives in `targets/esp32c3/.cargo/config.toml`; running `cargo build -p target-esp32c3` from the workspace root selects the host architecture instead.
 
 Web (browser):
 
@@ -76,54 +65,32 @@ trunk serve          # dev server at http://127.0.0.1:8080 with live reload
 trunk build --release # production bundle in dist/
 ```
 
-[trunk](https://trunkrs.dev) handles the wasm build, `wasm-bindgen`,
-`wasm-opt`, and serving. `trunk serve` uses the dev profile (fast
-rebuild, large wasm); `--release` applies the workspace
-`[profile.release]` and shrinks the output. `wasm-opt` runs only in
-release with `--all-features` (wired in `index.html`) so it accepts
-the bulk-memory ops rustc emits for wasm32.
+[trunk](https://trunkrs.dev) handles the WebAssembly build, `wasm-bindgen`, `wasm-opt`, and serving. `trunk serve` uses the development profile; `--release` applies the workspace release profile. `wasm-opt` receives `--all-features` in `index.html` so it accepts the bulk-memory operations emitted by rustc.
 
-(The `target-` prefix on the package name avoids a collision with the
-`esp32c3` peripheral-access crate that esp-hal pulls in transitively.
-The `desktop` crate doesn't collide with anything, so it stays
-unprefixed. Pick whatever convention you like for new targets — see
-below.)
+The `target-` package prefix avoids a collision with the `esp32c3` peripheral-access crate used by esp-hal.
 
-The ESP target ships only a mirui-side skeleton — the SPI / panel /
-DMA wiring is a stub closure in `targets/esp32c3/src/main.rs`. Copy a
-working `board.rs` from
-[`mirui-examples`](https://github.com/W-Mai/mirui-examples/tree/main/examples/esp32c3-animation)
-and call it from `main` to drive a real LCD.
+The ESP target contains a stub framebuffer flush closure. Copy `board.rs` from [`mirui-examples`](https://github.com/W-Mai/mirui-examples/tree/main/examples/esp32c3-animation), adjust the board wiring, and call it from `main` to drive the display.
 
 ## Add a new target
 
 ESP32-C3 is the cross-built embedded target included in this template. ESP32-S3, RP2040, STM32, and other MCUs are extension points rather than verified boards in this repository. To add one, replicate the existing target directory:
 
 1. Copy a starting point: `cp -r targets/esp32c3 targets/<name>`.
-2. Update the new crate's `Cargo.toml` `[package].name` and BSP
-   dependencies (clocks, peripherals, etc.).
-3. Update `.cargo/config.toml` and `rust-toolchain.toml` for the new
-   target triple and linker script.
-4. Adjust `src/main.rs` to talk to the new chip's clocks, SPI, and
-   panel. The mirui-side wiring (`App::new`, `app::build_ui`, `run`)
-   stays the same.
+2. Update the new crate's `Cargo.toml` package name and board-support dependencies.
+3. Update `.cargo/config.toml` and `rust-toolchain.toml` for the target triple and linker script.
+4. Adjust `src/main.rs` for the target clocks, SPI peripheral, and panel while retaining the mirui application wiring.
 
-`cargo build -p <name>` picks the new crate up automatically — no
-edit to the workspace manifest needed.
+`cargo build -p <name>` picks up the new crate without an edit to the workspace manifest.
 
 ## Sharing UI code
 
-The `app` library is `std` / `no_std` dual, gated by the `std`
-feature. Each target enables `std` exactly when its mirui surface
-needs it:
+The `app` library supports `std` and `no_std`, selected through its `std` feature:
 
 - `targets/desktop` enables `app/std` (SDL backend pulls in `std`).
 - `targets/esp32c3` keeps `app` at `default-features = false`.
 - `targets/wasm` enables `app/std` (the `web-canvas` surface needs `std`).
 
-Add new mirui usage inside `app/src/lib.rs` and both targets pick it
-up unchanged. If you reach for an `std::` API in `app`, gate it with
-`#[cfg(feature = "std")]` so the embedded build keeps compiling.
+Add shared mirui UI to `app/src/lib.rs`. Gate any `std`-only code with `#[cfg(feature = "std")]` so the embedded target remains buildable.
 
 ## License
 

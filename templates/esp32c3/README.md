@@ -1,19 +1,12 @@
 # {{project-name}}
 
-A [mirui](https://github.com/W-Mai/mirui) application targeting
-ESP32-C3 with an SPI display, built on the `esp-hal` 1.1 stack.
+A [mirui](https://github.com/W-Mai/mirui) application targeting ESP32-C3 with an SPI display on the `esp-hal` 1.1 stack.
 
 ## Status
 
-This template ships only the mirui-side skeleton — the SPI / panel /
-DMA wiring is intentionally a stub closure in `src/main.rs`. To get
-pixels on screen, copy a working board file from
-[`mirui-examples`](https://github.com/W-Mai/mirui-examples/tree/main/examples/esp32c3-animation)
-and call it from `main`.
+This template provides the mirui application skeleton with a stub framebuffer flush closure. Copy the board integration from [`mirui-examples`](https://github.com/W-Mai/mirui-examples/tree/main/examples/esp32c3-animation), adjust its SPI, panel, and DMA wiring, and call it from `main`.
 
-`cargo build --release` will succeed even with the stub — what's
-verified is the framework wiring (mirui prelude, `App`, `ui!` macro,
-`FramebufSurface` flush callback shape).
+`cargo build --release` succeeds with the stub and verifies the mirui prelude, `App`, `ui!`, and `FramebufSurface` callback boundary.
 
 ## Build
 
@@ -21,8 +14,7 @@ verified is the framework wiring (mirui prelude, `App`, `ui!` macro,
 cargo build --release
 ```
 
-The output binary lands at
-`target/riscv32imc-unknown-none-elf/release/{{project-name}}`.
+The output binary lands at `target/riscv32imc-unknown-none-elf/release/{{project-name}}`.
 
 ## Flash
 
@@ -31,19 +23,14 @@ cargo install espflash
 espflash flash --monitor target/riscv32imc-unknown-none-elf/release/{{project-name}}
 ```
 
-Or, with the runner already configured in `.cargo/config.toml`,
-just `cargo run --release`.
+With the runner configured in `.cargo/config.toml`, `cargo run --release` builds and flashes the firmware.
 
 ## Add a real SPI panel
 
-1. Copy `mirui-examples/examples/esp32c3-animation/src/board.rs` into
-   this project's `src/`.
-2. Adjust pin assignments at the top of `board.rs` to match your
-   wiring.
-3. In `main`, replace the stub closure inside `FramebufSurface::with_format`
-   with the real flush callback that drives your panel.
-4. Match `ColorFormat` to your panel's byte order (most ST7735/ST7789
-   panels driven from a little-endian MCU want `RGB565Swapped`).
+1. Copy `mirui-examples/examples/esp32c3-animation/src/board.rs` into this project's `src/`.
+2. Adjust the pin assignments in `board.rs` to match the board wiring.
+3. Replace the stub closure inside `FramebufSurface::with_format` with the panel flush callback.
+4. Match `ColorFormat` to the panel byte order; ST7735 and ST7789 panels driven from a little-endian MCU commonly use `RGB565Swapped`.
 
 ## Pinned dependency versions
 
@@ -54,8 +41,7 @@ just `cargo run --release`.
 - `esp-println = "0.14"`
 - `critical-section = "1.2"`
 
-These track `mirui-examples/examples/esp32c3-animation`. Bump them
-together when esp-hal cuts a new minor.
+These versions track `mirui-examples/examples/esp32c3-animation` and should be updated together.
 
 ## Optional features
 

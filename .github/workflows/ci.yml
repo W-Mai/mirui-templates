@@ -120,3 +120,59 @@ jobs:
           grep -q 'testfoo' testfoo/index.html
       - name: Build
         run: cd testfoo && cargo build --target wasm32-unknown-unknown
+
+  android:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        backend: [wgpu, sw]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+      - uses: Swatinem/rust-cache@v2
+      - name: Install cargo-generate
+        run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
+      - name: Install cargo-apk
+        run: cargo install cargo-apk --locked
+      - name: Generate
+        run: |
+          MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/android/cargo-generate.toml | head -1)
+          cargo generate \
+            --path templates/android \
+            --name testfoo \
+            --define mirui-version=$MIRUI_VERSION \
+            --define backend=${{ matrix.backend }} \
+            --define android-package=rs.mirui.testfoo \
+            --silent
+      - name: Build
+        run: cd testfoo && cargo apk build --release
+
+  ios:
+    runs-on: macos-14
+    strategy:
+      matrix:
+        backend: [wgpu, sw]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios-sim
+      - uses: Swatinem/rust-cache@v2
+      - name: Install cargo-generate
+        run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
+      - name: Generate
+        run: |
+          MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/ios/cargo-generate.toml | head -1)
+          cargo generate \
+            --path templates/ios \
+            --name testfoo \
+            --define mirui-version=$MIRUI_VERSION \
+            --define backend=${{ matrix.backend }} \
+            --define ios-bundle-id=rs.mirui.testfoo \
+            --silent
+      - name: Build Rust library
+        run: cd testfoo && cargo build --target aarch64-apple-ios-sim
+      - name: Build unsigned simulator application
+        run: xcodebuild -project testfoo/ios/testfoo.xcodeproj -scheme testfoo -sdk iphonesimulator -configuration Release -derivedDataPath /tmp/mirui-ios-${{ matrix.backend }} CODE_SIGNING_ALLOWED=NO build

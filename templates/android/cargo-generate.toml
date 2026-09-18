@@ -1,0 +1,20 @@
+[template]
+cargo_generate_version = ">=0.18.0"
+
+[placeholders.mirui-version]
+type = "string"
+prompt = "mirui version to depend on"
+default = "0.45"
+regex = "^\\d+\\.\\d+(\\.\\d+)?$"
+
+[placeholders.backend]
+type = "string"
+prompt = "render backend"
+choices = ["wgpu", "sw"]
+default = "wgpu"
+
+[placeholders.android-package]
+type = "string"
+prompt = "Android application id"
+default = "rs.mirui.app"
+regex = "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"

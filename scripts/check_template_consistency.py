@@ -41,7 +41,7 @@ def require_equal(label: str, left: object, right: object) -> None:
 def main() -> None:
     versions = {
         name: mirui_version(TEMPLATES / name / "cargo-generate.toml")
-        for name in ("esp32c3", "sdl-only", "wasm", "workspace")
+        for name in ("android", "esp32c3", "ios", "sdl-only", "wasm", "workspace")
     }
     if len(set(versions.values())) != 1:
         details = ", ".join(f"{name}={version}" for name, version in versions.items())
