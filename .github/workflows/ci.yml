@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
+    tags: ["v*"]
   pull_request:
 
 env:
@@ -66,6 +67,10 @@ jobs:
           cd testfoo/targets/esp32c3
           cargo build --release
           cargo build --release --features quad-aa,perf
+      - name: Verify mobile target generation
+        run: |
+          test -f testfoo/targets/android/src/lib.rs
+          test -f testfoo/targets/ios/ios/testfoo.xcodeproj/project.pbxproj
 
   # Single-target ESP32-C3 template — cross-compiled to riscv32imc.
   esp32c3:
@@ -148,6 +153,37 @@ jobs:
             --silent
       - name: Build
         run: cd testfoo && cargo apk build --release
+      - name: Verify workspace target
+        run: |
+          MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/workspace/cargo-generate.toml | head -1)
+          cargo generate \
+            --path templates/workspace \
+            --name testworkspace \
+            --define mirui-version=$MIRUI_VERSION \
+            --define android-backend=${{ matrix.backend }} \
+            --define android-package=rs.mirui.testworkspace \
+            --define ios-backend=wgpu \
+            --define ios-bundle-id=rs.mirui.testworkspace \
+            --silent
+          cd testworkspace/targets/android
+          cargo apk build --release
+      - name: Sign preview APK
+        run: |
+          mkdir -p dist
+          MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/android/cargo-generate.toml | head -1)
+          keytool -genkeypair -keystore /tmp/mirui-preview.keystore -storepass mirui-preview -keypass mirui-preview -alias mirui-preview -keyalg RSA -keysize 2048 -validity 2 -dname "CN=mirui CI preview"
+          APK=$(find testfoo/target -type f -path '*/apk/*.apk' -print -quit)
+          test -n "$APK"
+          BUILD_TOOLS=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)
+          "$BUILD_TOOLS/apksigner" sign --ks /tmp/mirui-preview.keystore --ks-pass pass:mirui-preview --key-pass pass:mirui-preview --out "dist/mirui-android-${{ matrix.backend }}-preview.apk" "$APK"
+          "$BUILD_TOOLS/apksigner" verify "dist/mirui-android-${{ matrix.backend }}-preview.apk"
+          printf '{"repository":"%s","sha":"%s","mirui_version":"%s","backend":"%s","target":"aarch64-linux-android","profile":"release","signing":"ephemeral-test-key","rust":"%s"}\n' "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$MIRUI_VERSION" "${{ matrix.backend }}" "$(rustc -V)" > "dist/mirui-android-${{ matrix.backend }}-preview.json"
+      - name: Upload Android preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-android-${{ matrix.backend }}
+          path: dist/*
+          if-no-files-found: error
 
   ios:
     runs-on: macos-14
@@ -176,3 +212,67 @@ jobs:
         run: cd testfoo && cargo build --target aarch64-apple-ios-sim
       - name: Build unsigned simulator application
         run: xcodebuild -project testfoo/ios/testfoo.xcodeproj -scheme testfoo -sdk iphonesimulator -configuration Release -derivedDataPath /tmp/mirui-ios-${{ matrix.backend }} CODE_SIGNING_ALLOWED=NO build
+      - name: Verify workspace target
+        run: |
+          MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/workspace/cargo-generate.toml | head -1)
+          cargo generate \
+            --path templates/workspace \
+            --name testworkspace \
+            --define mirui-version=$MIRUI_VERSION \
+            --define android-backend=wgpu \
+            --define android-package=rs.mirui.testworkspace \
+            --define ios-backend=${{ matrix.backend }} \
+            --define ios-bundle-id=rs.mirui.testworkspace \
+            --silent
+          xcodebuild -project testworkspace/targets/ios/ios/testworkspace.xcodeproj -scheme testworkspace -sdk iphonesimulator -configuration Release -derivedDataPath /tmp/mirui-ios-workspace-${{ matrix.backend }} CODE_SIGNING_ALLOWED=NO build
+      - name: Package simulator application
+        run: |
+          mkdir -p dist
+          ditto -c -k --sequesterRsrc --keepParent "/tmp/mirui-ios-${{ matrix.backend }}/Build/Products/Release-iphonesimulator/testfoo.app" "dist/mirui-ios-simulator-${{ matrix.backend }}-preview.zip"
+          MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/ios/cargo-generate.toml | head -1)
+          printf '{"repository":"%s","sha":"%s","mirui_version":"%s","backend":"%s","target":"aarch64-apple-ios-sim","profile":"release","signing":"simulator-only","rust":"%s"}\n' "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$MIRUI_VERSION" "${{ matrix.backend }}" "$(rustc -V)" > "dist/mirui-ios-simulator-${{ matrix.backend }}-preview.json"
+      - name: Upload iOS Simulator preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-ios-${{ matrix.backend }}
+          path: dist/*
+          if-no-files-found: error
+
+  publish-mobile:
+    if: github.event_name == 'push'
+    needs: [template-consistency, sdl-only, workspace, esp32c3, wasm, android, ios]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: mobile-*
+          path: dist
+          merge-multiple: true
+      - name: Record checksums
+        run: cd dist && sha256sum *.apk *.zip > SHA256SUMS
+      - name: Publish version assets
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" --notes "CI-validated Android test APKs and unsigned arm64 iOS Simulator applications."
+          gh release upload "$GITHUB_REF_NAME" dist/* --clobber
+      - name: Publish rolling preview
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/mobile-preview" >/dev/null 2>&1; then
+            gh api --method PATCH "repos/$GITHUB_REPOSITORY/git/refs/tags/mobile-preview" -f sha="$GITHUB_SHA" -F force=true >/dev/null
+          else
+            gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs" -f ref='refs/tags/mobile-preview' -f sha="$GITHUB_SHA" >/dev/null
+          fi
+          if gh release view mobile-preview >/dev/null 2>&1; then
+            gh release edit mobile-preview --prerelease --title "Mobile preview" --notes "Latest CI-validated Android test APKs and unsigned arm64 iOS Simulator applications. Asset metadata records the exact source revision."
+          else
+            gh release create mobile-preview --prerelease --title "Mobile preview" --notes "Latest CI-validated Android test APKs and unsigned arm64 iOS Simulator applications. Asset metadata records the exact source revision."
+          fi
+          gh release upload mobile-preview dist/* --clobber

@@ -1,5 +1,5 @@
 [package]
-name = "{{project-name}}"
+name = "@@PACKAGE_NAME@@"
 version = "0.1.0"
 edition = "2024"
 authors = ["{{authors}}"]
@@ -9,9 +9,5 @@ crate-type = ["staticlib"]
 
 [dependencies]
 mirui = { version = "{{mirui-version}}", features = ["wgpu"] }
-
-[profile.release]
-opt-level = "s"
-lto = "fat"
-codegen-units = 1
-strip = true
+@@APP_DEPENDENCY@@
+@@RELEASE_PROFILE@@

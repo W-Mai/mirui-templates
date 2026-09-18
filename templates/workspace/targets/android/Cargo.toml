@@ -1,5 +1,5 @@
 [package]
-name = "{{project-name}}"
+name = "target-android"
 version = "0.1.0"
 edition = "2024"
 authors = ["{{authors}}"]
@@ -10,7 +10,7 @@ crate-type = ["cdylib"]
 [dependencies]
 mirui = { version = "{{mirui-version}}", features = ["wgpu-android"] }
 winit = { version = "0.30", features = ["android-native-activity"] }
-
+app = { path = "../../app", features = ["std"] }
 
 [package.metadata.android]
 package = "{{android-package}}"
@@ -22,8 +22,3 @@ target_sdk_version = 35
 
 [package.metadata.android.application]
 label = "{{project-name}}"
-[profile.release]
-opt-level = "s"
-lto = "fat"
-codegen-units = 1
-strip = true

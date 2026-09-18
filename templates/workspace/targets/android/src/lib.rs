@@ -1,12 +1,11 @@
 use mirui::prelude::*;
 use winit::platform::android::activity::AndroidApp;
 
-#[path = "ui.rs"]
-mod template_app;
+use app as template_app;
 
 #[unsafe(no_mangle)]
 pub fn android_main(android_app: AndroidApp) {
-{% if backend == "sw" %}    use mirui::surface::wgpu_upload::{SoftwareUploadConfig, software_mobile_host};
+{% if android-backend == "sw" %}    use mirui::surface::wgpu_upload::{SoftwareUploadConfig, software_mobile_host};
 
     software_mobile_host("{{project-name}}", SoftwareUploadConfig::default(), |surface| {
         let mut app = App::new(surface);

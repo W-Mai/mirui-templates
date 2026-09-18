@@ -3,6 +3,8 @@
 from pathlib import Path
 import re
 
+from materialize_templates import check as check_materialized
+
 
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATES = ROOT / "templates"
@@ -39,6 +41,9 @@ def require_equal(label: str, left: object, right: object) -> None:
 
 
 def main() -> None:
+    if check_materialized() != 0:
+        raise SystemExit("materialized templates are out of date")
+
     versions = {
         name: mirui_version(TEMPLATES / name / "cargo-generate.toml")
         for name in ("android", "esp32c3", "ios", "sdl-only", "wasm", "workspace")

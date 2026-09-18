@@ -9,6 +9,8 @@ use mirui::prelude::*;
 use mirui::render::texture::ColorFormat;
 use mirui::surface::framebuf::FramebufSurface;
 
+use app as template_app;
+
 esp_bootloader_esp_idf::esp_app_desc!();
 
 #[panic_handler]
@@ -25,30 +27,22 @@ const H: u16 = 80;
 #[esp_hal::main]
 fn main() -> ! {
     esp_alloc::heap_allocator!(size: 72 * 1024);
-
     let _peripherals = esp_hal::init(esp_hal::Config::default());
 
-    // BSP wiring: replace the stub closure below with a real SPI
-    // driver that pushes `bytes` to your panel for the rectangle
-    // described by `area`. See mirui-examples for a complete
-    // ST7735S setup (board.rs covers SPI + DMA + reset):
-    // https://github.com/W-Mai/mirui-examples/tree/main/examples/esp32c3-animation
     let backend = FramebufSurface::with_format(
         W,
         H,
         ColorFormat::RGB565Swapped,
         |_bytes: &[u8], _area: PhysicalRect| {
-            // TODO: write `_bytes` to the LCD window described by `_area`
+            // TODO: write `_bytes` to the LCD window described by `_area`.
         },
     );
 
-    let mut app_inst = App::new(backend);
-    app_inst.with_default_widgets().with_default_systems();
+    let mut app = App::new(backend);
+    app.with_default_widgets().with_default_systems();
 
-    let root = app_inst.spawn_root().id();
-
-    app::build_ui(&mut app_inst.world, root);
-
-    app_inst.run();
+    let root = app.spawn_root().id();
+    template_app::build_ui(&mut app.world, root);
+    app.run();
     unreachable!();
 }

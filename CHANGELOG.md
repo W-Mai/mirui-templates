@@ -14,10 +14,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Android and iOS templates support direct WGPU rendering or software rasterization selected during project generation.
 - Mobile templates retain application state across native lifecycle suspension and resume, preserve touch input, and bound software framebuffer allocation.
+- The workspace template includes Android and iOS target crates that share the same UI library as desktop, WebAssembly, and ESP32-C3.
+- Successful mobile CI builds publish test-signed Android APKs and unsigned arm64 iOS Simulator archives as downloadable release assets.
 
 ### Changed
 
 - CI keeps mirui version defaults aligned across templates and rejects divergent features, dependencies, toolchains, or target configuration between the standalone and workspace ESP32-C3 starters.
+- Canonical target adapters materialize standalone and workspace variants deterministically, and CI rejects generated-file drift.
 - ESP32-C3 framebuffer callbacks receive the clipped `PhysicalRect` value required by mirui 0.44.
 - ESP32-C3 templates expose and cross-build `quad-aa` and `perf` as opt-in Cargo features instead of forcing transformed-quad antialiasing into every firmware.
 - README target matrices distinguish CI-built templates, hardware-verified examples, available mirui backends, and unverified MCU extension points.

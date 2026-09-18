@@ -1,7 +1,7 @@
 use mirui::prelude::*;
 use mirui::surface::sdl::SdlSurface;
 
-use app as template_app;
+@@APP_IMPORT@@
 
 fn main() {
     let backend = SdlSurface::new("{{project-name}}", 480, 320);

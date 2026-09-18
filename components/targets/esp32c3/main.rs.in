@@ -9,8 +9,7 @@ use mirui::prelude::*;
 use mirui::render::texture::ColorFormat;
 use mirui::surface::framebuf::FramebufSurface;
 
-#[path = "ui.rs"]
-mod template_app;
+@@APP_IMPORT@@
 
 esp_bootloader_esp_idf::esp_app_desc!();
 

@@ -1,5 +1,5 @@
 [package]
-name = "target-esp32c3"
+name = "@@PACKAGE_NAME@@"
 version = "0.1.0"
 edition = "2024"
 authors = ["{{authors}}"]
@@ -11,7 +11,7 @@ perf = ["mirui/perf"]
 
 [dependencies]
 mirui = { version = "{{mirui-version}}", default-features = false }
-app = { path = "../../app", default-features = false }
+@@APP_DEPENDENCY@@
 
 esp-hal = { version = "1.1.0", features = ["esp32c3", "unstable"] }
 esp-alloc = "0.7"
@@ -19,3 +19,4 @@ esp-println = { version = "0.14", features = ["esp32c3"] }
 esp-bootloader-esp-idf = { version = "0.5.0", features = ["esp32c3"] }
 
 critical-section = "1.2"
+@@RELEASE_PROFILE@@

@@ -1,12 +1,10 @@
 use mirui::prelude::*;
-use winit::platform::android::activity::AndroidApp;
 
-#[path = "ui.rs"]
-mod template_app;
+use app as template_app;
 
 #[unsafe(no_mangle)]
-pub fn android_main(android_app: AndroidApp) {
-{% if backend == "sw" %}    use mirui::surface::wgpu_upload::{SoftwareUploadConfig, software_mobile_host};
+pub extern "C" fn mirui_start() -> ! {
+{% if ios-backend == "sw" %}    use mirui::surface::wgpu_upload::{SoftwareUploadConfig, software_mobile_host};
 
     software_mobile_host("{{project-name}}", SoftwareUploadConfig::default(), |surface| {
         let mut app = App::new(surface);
@@ -15,7 +13,7 @@ pub fn android_main(android_app: AndroidApp) {
         template_app::build_ui(&mut app.world, root);
         app
     })
-    .run_android(android_app);
+    .run_ios()
 {% else %}    use mirui::render::wgpu::WgpuRendererFactory;
     use mirui::surface::wgpu_surface::wgpu_mobile_host;
 
@@ -26,5 +24,5 @@ pub fn android_main(android_app: AndroidApp) {
         template_app::build_ui(&mut app.world, root);
         app
     })
-    .run_android(android_app);
+    .run_ios()
 {% endif %}}

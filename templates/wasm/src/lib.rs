@@ -1,13 +1,15 @@
-//! `{{project-name}}` — mirui app on the `web-canvas` backend.
+//! `{{project-name}}` on the `web-canvas` backend.
 
 #![cfg(target_arch = "wasm32")]
 
 use mirui::prelude::*;
 use mirui::render::web_canvas::WebCanvasRendererFactory;
 use mirui::surface::web_canvas::WebCanvasSurface;
-use mirui::ui::widgets::Text;
 use wasm_bindgen::JsCast;
 use wasm_bindgen::prelude::*;
+
+#[path = "ui.rs"]
+mod template_app;
 
 #[wasm_bindgen(start)]
 pub fn start() {
@@ -28,29 +30,6 @@ pub fn start() {
     app.with_default_widgets().with_default_systems();
 
     let root = app.spawn_root().id();
-
-    ui! {
-        :(
-            parent: root
-            world: &mut app.world
-        :)
-
-        Column (grow: 1.0, padding: Padding::all(16)) {
-            View (
-                bg_color: ColorToken::Primary,
-                text_color: ColorToken::OnPrimary,
-                height: 48,
-                border_radius: 8,
-                padding: Padding::all(12)
-            ) {
-                Text ("{{project-name}}")
-            }
-            View (bg_color: ColorToken::SurfaceVariant, grow: 1.0)
-            View (height: 32, padding: Padding::all(6)) {
-                Text ("mirui · web-canvas")
-            }
-        }
-    };
-
+    template_app::build_ui(&mut app.world, root);
     app.into_runner().start_animation_frame();
 }

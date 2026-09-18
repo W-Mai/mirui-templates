@@ -4,5 +4,27 @@ cargo_generate_version = ">=0.18.0"
 [placeholders.mirui-version]
 type = "string"
 prompt = "mirui version to depend on"
-default = "0.45"
+default = "0.46"
 regex = "^\\d+\\.\\d+(\\.\\d+)?$"
+
+[placeholders.android-backend]
+type = "string"
+prompt = "Android renderer"
+choices = ["wgpu", "sw"]
+default = "wgpu"
+
+[placeholders.android-package]
+type = "string"
+prompt = "Android package identifier"
+default = "rs.mirui.{{crate_name}}"
+
+[placeholders.ios-backend]
+type = "string"
+prompt = "iOS renderer"
+choices = ["wgpu", "sw"]
+default = "wgpu"
+
+[placeholders.ios-bundle-id]
+type = "string"
+prompt = "iOS bundle identifier"
+default = "rs.mirui.{{crate_name}}"

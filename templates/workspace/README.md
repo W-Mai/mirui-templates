@@ -1,6 +1,6 @@
 # {{project-name}}
 
-A Cargo workspace that drives the same [mirui](https://github.com/W-Mai/mirui) UI from an SDL2 desktop binary, an ESP32-C3 binary, and a browser build through the `web-canvas` backend.
+A Cargo workspace that drives the same [mirui](https://github.com/W-Mai/mirui) UI on desktop, WebAssembly, ESP32-C3, Android, and iOS.
 
 ## Layout
 
@@ -19,10 +19,17 @@ A Cargo workspace that drives the same [mirui](https://github.com/W-Mai/mirui) U
     │   ├── .cargo/config.toml
     │   ├── rust-toolchain.toml
     │   └── src/main.rs
-    └── wasm/              # browser build, web-canvas backend via trunk
+    ├── wasm/              # browser build, web-canvas backend via trunk
+    │   ├── Cargo.toml
+    │   ├── Trunk.toml
+    │   ├── index.html
+    │   └── src/lib.rs
+    ├── android/           # Android NativeActivity host
+    │   ├── Cargo.toml
+    │   └── src/lib.rs
+    └── ios/               # iOS UIKit host and Xcode project
         ├── Cargo.toml
-        ├── Trunk.toml
-        ├── index.html
+        ├── ios/
         └── src/lib.rs
 ```
 
@@ -67,6 +74,26 @@ trunk build --release # production bundle in dist/
 
 [trunk](https://trunkrs.dev) handles the WebAssembly build, `wasm-bindgen`, `wasm-opt`, and serving. `trunk serve` uses the development profile; `--release` applies the workspace release profile. `wasm-opt` receives `--all-features` in `index.html` so it accepts the bulk-memory operations emitted by rustc.
 
+Android:
+
+```bash
+rustup target add aarch64-linux-android
+cargo install cargo-apk
+cd targets/android
+cargo apk run --release
+```
+
+The generated package uses the selected `android-backend`: `wgpu` renders directly and `sw` rasterizes in software before uploading dirty regions through WGPU.
+
+iOS:
+
+```bash
+rustup target add aarch64-apple-ios aarch64-apple-ios-sim
+open targets/ios/ios/{{project-name}}.xcodeproj
+```
+
+Select an iOS Simulator or a signing team and physical device in Xcode. The generated target uses the selected `ios-backend`.
+
 The `target-` package prefix avoids a collision with the `esp32c3` peripheral-access crate used by esp-hal.
 
 The ESP target contains a stub framebuffer flush closure. Copy `board.rs` from [`mirui-examples`](https://github.com/W-Mai/mirui-examples/tree/main/examples/esp32c3-animation), adjust the board wiring, and call it from `main` to drive the display.
@@ -89,6 +116,7 @@ The `app` library supports `std` and `no_std`, selected through its `std` featur
 - `targets/desktop` enables `app/std` (SDL backend pulls in `std`).
 - `targets/esp32c3` keeps `app` at `default-features = false`.
 - `targets/wasm` enables `app/std` (the `web-canvas` surface needs `std`).
+- `targets/android` and `targets/ios` enable `app/std`.
 
 Add shared mirui UI to `app/src/lib.rs`. Gate any `std`-only code with `#[cfg(feature = "std")]` so the embedded target remains buildable.
 
