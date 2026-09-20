@@ -8,7 +8,7 @@ authors = ["{{authors}}"]
 crate-type = ["cdylib"]
 
 [dependencies]
-mirui = { version = "{{mirui-version}}", git = "https://github.com/W-Mai/mirui", rev = "@@MIRUI_REV@@", features = ["wgpu-android"] }
+mirui = { version = "{{mirui-version}}", features = ["wgpu-android"] }
 winit = { version = "0.30", features = ["android-native-activity"] }
 @@APP_DEPENDENCY@@
 

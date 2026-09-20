@@ -45,7 +45,7 @@ cd hello-mirui
 cargo run
 ```
 
-Each template prompts for a project name and the compatible mirui version. Mobile templates also prompt for a rendering path and application identifier. Generated manifests resolve mirui from the exact revision recorded in `components/mirui-revision.txt` while retaining the prompted version requirement.
+Each template prompts for a project name and the compatible mirui version. Mobile templates also prompt for a rendering path and application identifier. Generated manifests resolve mirui from the selected published version.
 
 The generated application opens an interactive responsive card with mode buttons and a live slider. The same UI source runs across desktop, browser, mobile, and embedded targets; mobile roots keep content inside the current safe area automatically.
 
@@ -53,11 +53,11 @@ Successful `main` CI runs publish test-signed Android APKs and unsigned arm64 iO
 
 ## Pinning mirui
 
-The per-template `cargo-generate.toml` files define the default semver requirement. `components/mirui-revision.txt` defines the exact Git source revision used by every generated target. Pass `--define mirui-version=0.X` to change the compatibility requirement; update the revision file to move the shared source pin.
+The per-template `cargo-generate.toml` files define the default semver requirement. Pass `--define mirui-version=0.X` to change the compatibility requirement.
 
 ## Maintenance
 
-This repo tracks the [mirui](https://github.com/W-Mai/mirui) release cycle. `cargo xtask templates-bump` inside the mirui repo updates the per-template `cargo-generate.toml` version default. The shared Git revision is maintained in `components/mirui-revision.txt`.
+This repo tracks the [mirui](https://github.com/W-Mai/mirui) release cycle. `cargo xtask templates-bump` inside the mirui repo updates the per-template `cargo-generate.toml` version default.
 
 The mirui version requirement in a generated project's `Cargo.toml` comes from the cargo-generate prompt. The exact source revision comes from the shared revision file.
 

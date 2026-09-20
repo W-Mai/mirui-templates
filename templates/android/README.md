@@ -14,7 +14,7 @@ cargo apk run --release
 
 The `wgpu` selection renders mirui commands directly with WGPU. The `sw` selection rasterizes into a retained RGBA framebuffer and uploads dirty regions through WGPU for presentation.
 
-The generated application follows Android configuration changes instead of locking one orientation. Its mirui `App`, ECS world, and reactive state survive NativeActivity suspend/resume while the native window and swapchain are recreated.
+The generated application follows Android configuration changes instead of locking one orientation. Its mirui `App`, ECS world, and reactive state survive NativeActivity suspend/resume while the native window and swapchain are recreated. Focused text inputs open the native software keyboard, and native memory warnings release reconstructible caches without discarding application state.
 
 `SoftwareUploadConfig::default()` uses native device density within a 32 MiB CPU framebuffer budget. If the native framebuffer exceeds the budget, mirui selects the highest fitting scale. Change the policy or budget in `src/lib.rs` when a device needs a different memory/quality tradeoff.
 

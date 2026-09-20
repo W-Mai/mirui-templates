@@ -52,6 +52,16 @@ def main() -> None:
         details = ", ".join(f"{name}={version}" for name, version in versions.items())
         raise SystemExit(f"mirui-version defaults differ: {details}")
 
+    manifest_sources = tuple((ROOT / "components").rglob("Cargo.toml.in")) + tuple(
+        TEMPLATES.rglob("Cargo.toml")
+    )
+    for manifest in manifest_sources:
+        text = manifest.read_text()
+        if 'mirui = {' not in text:
+            continue
+        if 'git = "https://github.com/W-Mai/mirui"' in text or "MIRUI_REV" in text:
+            raise SystemExit(f"{manifest}: mirui must resolve from the selected published version")
+
     standalone_dir = TEMPLATES / "esp32c3"
     workspace_dir = TEMPLATES / "workspace" / "targets" / "esp32c3"
     standalone_manifest = standalone_dir / "Cargo.toml"
