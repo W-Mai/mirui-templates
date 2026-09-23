@@ -188,12 +188,12 @@ jobs:
             --silent
           cd testworkspace/targets/android
           cargo apk build --release
-      - name: Sign preview APK
+      - name: Verify and package preview APK
         run: |
           mkdir -p dist
           MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/android/cargo-generate.toml | head -1)
-          APK=$(find testfoo/target -type f -path '*/apk/*.apk' -print -quit)
-          test -n "$APK"
+          APK="testfoo/target/release/apk/testfoo.apk"
+          test -f "$APK"
           BUILD_TOOLS=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)
           cp "$APK" "dist/mirui-android-${{ matrix.backend }}-preview.apk"
           "$BUILD_TOOLS/apksigner" verify "dist/mirui-android-${{ matrix.backend }}-preview.apk"
