@@ -93,6 +93,10 @@ def planned_files() -> dict[Path, bytes]:
         files[standalone / "src" / target.entry_name] = render(
             source_dir / f"{target.entry_name}.in", standalone_replacements
         )
+        if target.name == "desktop":
+            files[standalone / "build.rs"] = render(
+                source_dir / "build.rs.in", standalone_replacements
+            )
         files[standalone / "src" / "ui.rs"] = standalone_ui
 
         files[workspace / "Cargo.toml"] = render(
@@ -101,6 +105,10 @@ def planned_files() -> dict[Path, bytes]:
         files[workspace / "src" / target.entry_name] = render(
             source_dir / f"{target.entry_name}.in", workspace_replacements
         )
+        if target.name == "desktop":
+            files[workspace / "build.rs"] = render(
+                source_dir / "build.rs.in", workspace_replacements
+            )
 
     files[TEMPLATES / "workspace" / "app" / "src" / "lib.rs"] = workspace_ui
     files[TEMPLATES / "workspace" / "app" / "Cargo.toml"] = render(
