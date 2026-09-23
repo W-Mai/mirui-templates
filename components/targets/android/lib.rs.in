@@ -1,3 +1,5 @@
+#![cfg(target_os = "android")]
+
 use mirui::prelude::*;
 use winit::platform::android::activity::AndroidApp;
 

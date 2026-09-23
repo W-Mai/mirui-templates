@@ -1,3 +1,5 @@
+#![cfg(target_os = "ios")]
+
 use mirui::prelude::*;
 
 use app as template_app;

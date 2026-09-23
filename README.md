@@ -46,7 +46,7 @@ cd hello-mirui
 cargo run
 ```
 
-For the multi-target workspace, use `templates/workspace` in the same command. The directory argument is relative to the repository root. Each template prompts for a project name and the compatible mirui version. Desktop, workspace, and mobile templates prompt for their rendering paths. Generated manifests resolve mirui from the selected published version.
+For the multi-target workspace, use `templates/workspace` in the same command. The directory argument is relative to the repository root. `--name` supplies the project name; the generator prompts for the compatible mirui version. Desktop, workspace, and mobile templates also prompt for their rendering paths. Generated manifests resolve mirui from the selected published version.
 
 SDL projects build and statically link SDL2 through the `sdl2` crate's `bundled` and `static-link` features. A C compiler and CMake are needed to build; no separate SDL2 development package or `LIBRARY_PATH` setting is needed. A binary built for one operating system and architecture still depends on that platform's system libraries and cannot be treated as a universal executable.
 

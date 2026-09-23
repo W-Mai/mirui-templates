@@ -35,7 +35,7 @@ The shared application starts with an interactive mode card and live slider. Mob
         └── src/lib.rs
 ```
 
-The `targets/*` glob in the workspace manifest picks up new target directories automatically.
+The `targets/*` glob in the workspace manifest picks up new target directories automatically. A plain `cargo check` or `cargo build` at the workspace root checks only the shared app and desktop target. Build ESP32-C3, browser, Android, and iOS targets with their platform-specific commands below; `--workspace` cannot combine their target-specific dependencies in a single host build.
 
 ## Build and run
 

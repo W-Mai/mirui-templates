@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = ["app", "targets/*"]
+default-members = ["app", "targets/desktop"]
 
 [profile.release]
 opt-level = "s"

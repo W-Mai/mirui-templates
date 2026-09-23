@@ -157,11 +157,11 @@ pub fn build_ui(world: &mut World, parent: Entity) {
 mod tests {
     use super::*;
     use mirui::core::reactive::flush_signal_dirty;
-    use mirui::input::event::gesture::GestureEvent;
     use mirui::input::event::GestureHandler;
+    use mirui::input::event::gesture::GestureEvent;
+    use mirui::ui::IdMap;
     use mirui::ui::builder::WidgetBuilder;
     use mirui::ui::widgets::slider::{SliderEvent, SliderHandler};
-    use mirui::ui::IdMap;
 
     fn text<'a>(world: &'a World, id: &'static str) -> alloc::borrow::Cow<'a, str> {
         let entity = world.find_by_id(id).expect("template id");

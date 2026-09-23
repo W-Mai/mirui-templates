@@ -44,6 +44,8 @@ jobs:
       - name: Build
         shell: bash
         run: cd testfoo && cargo build
+      - name: Check generated Rust formatting
+        run: cd testfoo && cargo fmt --all --check
 
   # Cargo workspace template — desktop binary on host, esp32c3 binary
   # cross-compiled to riscv32imc.
@@ -75,6 +77,12 @@ jobs:
             --silent
       - name: Build desktop crate
         run: cd testfoo && cargo build -p desktop
+      - name: Check generated Rust formatting
+        run: cd testfoo && cargo fmt --all --check
+      - name: Check default workspace members
+        run: cd testfoo && cargo check
+      - name: Check mobile crates on the host
+        run: cd testfoo && cargo check -p target-android -p target-ios
       - name: Test shared interactive UI
         run: cd testfoo && cargo test -p app --features std
       - name: Build esp32c3 crate (cross to riscv32imc)
