@@ -13,7 +13,7 @@ The shared application starts with an interactive mode card and live slider. Mob
 │   ├── Cargo.toml
 │   └── src/lib.rs         # pub fn build_ui(world, parent)
 └── targets/
-    ├── desktop/           # SDL2 binary
+    ├── desktop/           # WGPU or SDL2 binary
     │   ├── Cargo.toml
     │   └── src/main.rs
     ├── esp32c3/           # ESP32-C3 binary, framebuffer + esp-hal stack
@@ -45,11 +45,7 @@ Desktop:
 cargo run -p desktop
 ```
 
-The first build links SDL2 from the host system. On macOS Apple Silicon, Homebrew installs SDL2 at `/opt/homebrew/lib/`, which is outside the linker's default search list:
-
-```bash
-export LIBRARY_PATH="/opt/homebrew/lib:$LIBRARY_PATH"
-```
+The generated desktop target uses the selected `desktop-backend` (`wgpu` by default). Selecting `sdl` builds and statically links SDL2; install a C compiler and CMake, but no separate SDL2 development package or library path is needed. The executable still depends on its operating system's libraries.
 
 ESP32-C3:
 
@@ -115,7 +111,7 @@ ESP32-C3 is the cross-built embedded target included in this template. ESP32-S3,
 
 The `app` library supports `std` and `no_std`, selected through its `std` feature:
 
-- `targets/desktop` enables `app/std` (SDL backend pulls in `std`).
+- `targets/desktop` enables `app/std` for either desktop backend.
 - `targets/esp32c3` keeps `app` at `default-features = false`.
 - `targets/wasm` enables `app/std` (the `web-canvas` surface needs `std`).
 - `targets/android` and `targets/ios` enable `app/std`.

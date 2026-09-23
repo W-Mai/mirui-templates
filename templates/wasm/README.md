@@ -42,7 +42,7 @@ trunk build --release
 
 ## Other mirui templates
 
-- `sdl-only` — desktop SDL2 hello.
+- `desktop` — desktop WGPU or SDL2 application.
 - `esp32c3` — ESP32-C3 embedded skeleton.
 - `workspace` — Cargo workspace sharing UI code across desktop, ESP32-C3, and WebAssembly.
 

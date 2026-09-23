@@ -18,38 +18,46 @@ jobs:
       - name: Check shared template contracts
         run: python3 scripts/check_template_consistency.py
 
-  # SDL desktop template — single crate, host build
-  sdl-only:
-    runs-on: ubuntu-latest
+  # Desktop template — each renderer, single crate, host build
+  desktop:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+        backend: [wgpu, sdl]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - run: sudo apt-get update && sudo apt-get install -y libsdl2-dev
       - name: Install cargo-generate
         run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
       - name: Generate
+        shell: bash
         run: |
-          MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/sdl-only/cargo-generate.toml)
+          MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/desktop/cargo-generate.toml | head -1)
           cargo generate \
-            --path templates/sdl-only \
+            --path templates/desktop \
             --name testfoo \
             --define mirui-version=$MIRUI_VERSION \
+            --define backend=${{ matrix.backend }} \
             --silent
       - name: Build
+        shell: bash
         run: cd testfoo && cargo build
 
   # Cargo workspace template — desktop binary on host, esp32c3 binary
   # cross-compiled to riscv32imc.
   workspace:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        backend: [wgpu, sdl]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: riscv32imc-unknown-none-elf
       - uses: Swatinem/rust-cache@v2
-      - run: sudo apt-get update && sudo apt-get install -y libsdl2-dev
       - name: Install cargo-generate
         run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
       - name: Generate
@@ -59,6 +67,7 @@ jobs:
             --path templates/workspace \
             --name testfoo \
             --define mirui-version=$MIRUI_VERSION \
+            --define desktop-backend=${{ matrix.backend }} \
             --define android-backend=wgpu \
             --define android-package=rs.mirui.testfoo \
             --define ios-backend=wgpu \
@@ -171,6 +180,7 @@ jobs:
             --path templates/workspace \
             --name testworkspace \
             --define mirui-version=$MIRUI_VERSION \
+            --define desktop-backend=wgpu \
             --define android-backend=${{ matrix.backend }} \
             --define android-package=rs.mirui.testworkspace \
             --define ios-backend=wgpu \
@@ -229,6 +239,7 @@ jobs:
             --path templates/workspace \
             --name testworkspace \
             --define mirui-version=$MIRUI_VERSION \
+            --define desktop-backend=wgpu \
             --define android-backend=wgpu \
             --define android-package=rs.mirui.testworkspace \
             --define ios-backend=${{ matrix.backend }} \
@@ -250,7 +261,7 @@ jobs:
 
   publish-mobile:
     if: github.event_name == 'push'
-    needs: [template-consistency, sdl-only, workspace, esp32c3, wasm, android, ios]
+    needs: [template-consistency, desktop, workspace, esp32c3, wasm, android, ios]
     runs-on: ubuntu-latest
     permissions:
       contents: write

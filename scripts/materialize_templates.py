@@ -39,7 +39,7 @@ class Target:
 
 
 TARGETS = (
-    Target("desktop", "sdl-only", "desktop", "main.rs"),
+    Target("desktop", "desktop", "desktop", "main.rs"),
     Target("wasm", "wasm", "wasm", "lib.rs", WASM_RELEASE_PROFILE),
     Target("esp32c3", "esp32c3", "target-esp32c3", "main.rs"),
     Target("android", "android", "target-android", "lib.rs"),
@@ -107,6 +107,12 @@ def planned_files() -> dict[Path, bytes]:
         COMPONENTS / "shared" / "app.Cargo.toml.in",
         {},
     )
+    desktop_cargo_config = render(
+        COMPONENTS / "targets" / "desktop" / "cargo-config.toml.in",
+        {},
+    )
+    files[TEMPLATES / "desktop" / ".cargo" / "config.toml"] = desktop_cargo_config
+    files[TEMPLATES / "workspace" / ".cargo" / "config.toml"] = desktop_cargo_config
 
     copied_platform_files = {
         "wasm": ("Trunk.toml", "index.html"),

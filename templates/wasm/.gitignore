@@ -1,6 +1,5 @@
 target/
 dist/
 pkg/
-Cargo.lock
 .DS_Store
 node_modules/

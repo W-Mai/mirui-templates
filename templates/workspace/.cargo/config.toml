@@ -1,0 +1,3 @@
+# SDL2 0.37 requests a policy version rejected by CMake 4.
+[env]
+CMAKE_POLICY_VERSION_MINIMUM = { value = "3.5", force = false }

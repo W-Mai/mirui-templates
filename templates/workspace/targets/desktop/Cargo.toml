@@ -5,5 +5,10 @@ edition = "2024"
 authors = ["{{authors}}"]
 
 [dependencies]
+{% if desktop-backend == "sdl" %}
 mirui = { version = "{{mirui-version}}", features = ["sdl"] }
+sdl2 = { version = "0.37", features = ["bundled", "static-link"] }
+{% else %}
+mirui = { version = "{{mirui-version}}", features = ["wgpu"] }
+{% endif %}
 app = { path = "../../app", features = ["std"] }

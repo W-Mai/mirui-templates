@@ -6,3 +6,9 @@ type = "string"
 prompt = "mirui version to depend on"
 default = "0.46"
 regex = "^\\d+\\.\\d+(\\.\\d+)?$"
+
+[placeholders.backend]
+type = "string"
+prompt = "Desktop renderer"
+choices = ["wgpu", "sdl"]
+default = "wgpu"

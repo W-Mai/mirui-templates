@@ -5,6 +5,11 @@ edition = "2024"
 authors = ["{{authors}}"]
 
 [dependencies]
+{% if @@BACKEND_VAR@@ == "sdl" %}
 mirui = { version = "{{mirui-version}}", features = ["sdl"] }
+sdl2 = { version = "0.37", features = ["bundled", "static-link"] }
+{% else %}
+mirui = { version = "{{mirui-version}}", features = ["wgpu"] }
+{% endif %}
 @@APP_DEPENDENCY@@
 @@RELEASE_PROFILE@@
