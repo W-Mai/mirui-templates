@@ -14,7 +14,7 @@ pub fn android_main(android_app: AndroidApp) {
         let mut app = App::new(surface);
         app.with_default_widgets().with_default_systems();
         let root = app.spawn_root().id();
-        template_app::build_ui(&mut app.world, root);
+        app.compose(root, template_app::build_ui());
         app
     })
     .run_android(android_app);
@@ -25,7 +25,7 @@ pub fn android_main(android_app: AndroidApp) {
         let mut app = App::with_factory(surface, WgpuRendererFactory::new());
         app.with_default_widgets().with_default_systems();
         let root = app.spawn_root().id();
-        template_app::build_ui(&mut app.world, root);
+        app.compose(root, template_app::build_ui());
         app
     })
     .run_android(android_app);

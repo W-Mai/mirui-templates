@@ -15,6 +15,6 @@ fn main() {
 {% endif %}    app.with_default_widgets().with_default_systems();
 
     let root = app.spawn_root().id();
-    template_app::build_ui(&mut app.world, root);
+    app.compose(root, template_app::build_ui());
     app.run();
 }

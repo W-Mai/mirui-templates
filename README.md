@@ -52,6 +52,8 @@ SDL projects build and statically link SDL2 through the `sdl2` crate's `bundled`
 
 The generated application opens an interactive responsive card with mode buttons and a live slider. The same UI source runs across desktop, browser, mobile, and embedded targets; mobile roots keep content inside the current safe area automatically.
 
+Shared UI is declared with `#[compose]`. Each target creates its root and installs the UI with `app.compose(root, template_app::build_ui())`. Widget event bodies read their payload through `event`, such as `event.new` for slider changes.
+
 Successful `main` CI runs publish test-signed Android APKs and unsigned arm64 iOS Simulator archives on the mutable [`mobile-preview`](https://github.com/W-Mai/mirui-templates/releases/tag/mobile-preview) prerelease. Version tags receive the same normalized assets on their immutable release. The Android preview key is generated for each CI run and is not a production identity; physical iOS devices require an Apple signing team.
 
 ## Pinning mirui

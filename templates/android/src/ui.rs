@@ -1,6 +1,5 @@
 extern crate alloc;
 
-use mirui::ecs::{Entity, World};
 use mirui::prelude::*;
 use mirui::ui::widgets::{Button, ParagraphStyle, Slider, Text, TextAlign, TextOverflow};
 
@@ -13,7 +12,8 @@ fn single_line(align: TextAlign) -> ParagraphStyle {
     }
 }
 
-pub fn build_ui(world: &mut World, parent: Entity) {
+#[compose]
+pub fn build_ui() {
     let flowing = Signal::new(true);
     let energized = Signal::new(true);
     let (hero_mode, hero_energy, switch_mode, slider_energy) = (
@@ -24,11 +24,6 @@ pub fn build_ui(world: &mut World, parent: Entity) {
     );
 
     ui! {
-        :(
-            parent: parent
-            world: world
-        :)
-
         Column (
             id: "template_shell",
             container: true,
@@ -111,8 +106,7 @@ pub fn build_ui(world: &mut World, parent: Entity) {
                     fill_color: ColorToken::Primary,
                     thumb_color: ColorToken::OnPrimary
                 ) on ValueChanged {
-                    let _ = old;
-                    slider_energy.set(*new >= Fixed::from_int(35));
+                    slider_energy.set(event.new >= Fixed::from_int(35));
                 }
                 Row (
                     height: @height { if height < Fixed::from_int(120) { 18 } else { 24 } },
@@ -156,12 +150,13 @@ pub fn build_ui(world: &mut World, parent: Entity) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use mirui::core::reactive::flush_signal_dirty;
-    use mirui::input::event::GestureHandler;
-    use mirui::input::event::gesture::GestureEvent;
-    use mirui::ui::IdMap;
-    use mirui::ui::builder::WidgetBuilder;
-    use mirui::ui::widgets::slider::{SliderEvent, SliderHandler};
+    use mirui::ecs::{Entity, World};
+    use mirui::input::event::sim::{SimCommand, SimulatedInput, sim_input_system};
+    use mirui::surface::InputEvent;
+    use mirui::surface::framebuf::FramebufSurface;
+    use mirui::ui::ComputedRect;
+
+    type TestApp = App<FramebufSurface<fn(&[u8], PhysicalRect)>>;
 
     fn text<'a>(world: &'a World, id: &'static str) -> alloc::borrow::Cow<'a, str> {
         let entity = world.find_by_id(id).expect("template id");
@@ -171,45 +166,47 @@ mod tests {
             .resolve(world)
     }
 
+    fn tap(app: &mut TestApp, target: Entity, position: Fixed) {
+        let rect = app
+            .world
+            .get::<ComputedRect>(target)
+            .expect("widget layout")
+            .0;
+        let x = rect.x + rect.w * position;
+        let y = rect.y + rect.h / Fixed::from_int(2);
+        app.add_resource(SimulatedInput::new(alloc::vec![
+            SimCommand::at(0, InputEvent::PointerDown { id: 0, x, y }),
+            SimCommand::at(0, InputEvent::PointerUp { id: 0, x, y }),
+        ]));
+        assert!(!app.tick());
+    }
+
     #[test]
     fn controls_update_the_visible_state() {
-        let mut world = World::new();
-        world.insert_resource(IdMap::new());
-        let parent = WidgetBuilder::new(&mut world).id();
-        build_ui(&mut world, parent);
+        let mut app = App::headless(480, 320);
+        app.with_default_widgets().with_default_systems();
+        app.add_system(sim_input_system::system());
+        let root = app.spawn_root().id();
+        app.compose(root, build_ui());
+        app.render().unwrap();
 
-        assert_eq!(text(&world, "template_mode"), "FLOW");
-        let button = world
+        assert_eq!(text(&app.world, "template_mode"), "FLOW");
+        let button = app
+            .world
             .find_by_id("template_switch_mode")
             .expect("mode button");
-        GestureHandler::trigger(
-            &mut world,
-            button,
-            &GestureEvent::Tap {
-                x: Fixed::ZERO,
-                y: Fixed::ZERO,
-                target: button,
-            },
-        );
-        flush_signal_dirty(&mut world);
-        assert_eq!(text(&world, "template_mode"), "FOCUS");
+        tap(&mut app, button, Fixed::from_ratio(1, 2));
+        assert_eq!(text(&app.world, "template_mode"), "FOCUS");
 
-        let slider = world.find_by_id("template_energy").expect("energy slider");
-        let callback = world
-            .get::<SliderHandler>(slider)
-            .expect("slider handler")
-            .on_event
-            .clone_out();
-        callback.call(
-            &mut world,
-            slider,
-            &SliderEvent::ValueChanged {
-                new: Fixed::from_int(20),
-                old: Fixed::from_int(68),
-            },
-        );
-        flush_signal_dirty(&mut world);
-        assert_eq!(text(&world, "template_status"), "IDLE");
+        let slider = app
+            .world
+            .find_by_id("template_energy")
+            .expect("energy slider");
+        assert_eq!(text(&app.world, "template_status"), "READY");
+        tap(&mut app, slider, Fixed::from_ratio(1, 5));
+        assert_eq!(text(&app.world, "template_status"), "IDLE");
+        tap(&mut app, slider, Fixed::from_ratio(4, 5));
+        assert_eq!(text(&app.world, "template_status"), "READY");
     }
 
     #[test]
@@ -217,7 +214,7 @@ mod tests {
         let mut app = App::headless(160, 80);
         app.with_default_widgets().with_default_systems();
         let root = app.spawn_root().id();
-        build_ui(&mut app.world, root);
+        app.compose(root, build_ui());
         app.render().unwrap();
 
         for id in [
