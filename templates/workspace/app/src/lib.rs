@@ -153,8 +153,8 @@ mod tests {
     use super::*;
     use mirui::ecs::{Entity, World};
     use mirui::input::event::sim::{SimCommand, SimulatedInput, sim_input_system};
-    use mirui::surface::InputEvent;
     use mirui::surface::framebuf::FramebufSurface;
+    use mirui::surface::{InputEvent, PointerKind};
     use mirui::ui::ComputedRect;
 
     type TestApp = App<FramebufSurface<fn(&[u8], PhysicalRect)>>;
@@ -164,7 +164,7 @@ mod tests {
         world
             .get::<Text>(entity)
             .expect("text widget")
-            .resolve(world)
+            .resolve(world.resource())
     }
 
     fn tap(app: &mut TestApp, target: Entity, position: Fixed) {
@@ -176,8 +176,24 @@ mod tests {
         let x = rect.x + rect.w * position;
         let y = rect.y + rect.h / Fixed::from_int(2);
         app.add_resource(SimulatedInput::new(alloc::vec![
-            SimCommand::at(0, InputEvent::PointerDown { id: 0, x, y }),
-            SimCommand::at(0, InputEvent::PointerUp { id: 0, x, y }),
+            SimCommand::at(
+                0,
+                InputEvent::PointerDown {
+                    id: 0,
+                    kind: PointerKind::Mouse,
+                    x,
+                    y,
+                },
+            ),
+            SimCommand::at(
+                0,
+                InputEvent::PointerUp {
+                    id: 0,
+                    kind: PointerKind::Mouse,
+                    x,
+                    y,
+                },
+            ),
         ]));
         assert!(!app.tick());
     }
