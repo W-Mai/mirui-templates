@@ -42,6 +42,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Desktop WGPU starters handle surface initialization errors from mirui 0.50.
 - Generated iOS and Android crates check on non-mobile hosts without importing mobile-only runtime entry points.
 - The workspace defaults to the shared app and desktop target so a root-level `cargo check` does not combine incompatible platform dependencies.
 - Generated desktop and shared UI source passes `cargo fmt --check`. CI checks formatting and host builds alongside target-specific builds.

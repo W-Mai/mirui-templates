@@ -10,7 +10,7 @@ use app as template_app;
 fn main() {
 {% if desktop-backend == "sdl" %}    let backend = SdlSurface::new("{{project-name}}", 480, 320);
     let mut app = App::new(backend);
-{% else %}    let backend = WgpuSurface::new("{{project-name}}", 480, 320);
+{% else %}    let backend = WgpuSurface::new("{{project-name}}", 480, 320).expect("WGPU initialization failed");
     let mut app = App::with_factory(backend, WgpuRendererFactory::new());
 {% endif %}    app.with_default_widgets().with_default_systems();
 
