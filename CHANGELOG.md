@@ -21,6 +21,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Android standalone and workspace targets use Gradle and cargo-ndk to package NativeActivity libraries, Java sources, and manifests, with selectable ABIs and explicit release signing.
+
 - Shared UI uses `#[compose]` and typed event payloads; all target adapters install it through `App::compose`. Starter tests exercise button and slider events through their registered widget handlers.
 - CI keeps mirui version defaults aligned across templates and rejects divergent features, dependencies, toolchains, or target configuration between the standalone and workspace ESP32-C3 starters.
 - Canonical target adapters materialize standalone and workspace variants deterministically, and CI rejects generated-file drift.

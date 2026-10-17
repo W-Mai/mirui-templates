@@ -76,12 +76,17 @@ Android:
 
 ```bash
 rustup target add aarch64-linux-android
-cargo install cargo-apk
-cd targets/android
-cargo apk run --release
+cargo install cargo-ndk --version 4.1.2 --locked
+cd targets/android/android
+./gradlew installDebug
+adb shell am start -n {{android-package}}/android.app.NativeActivity
 ```
 
 The generated package uses the selected `android-backend`: `wgpu` renders directly and `sw` rasterizes in software before uploading dirty regions through WGPU.
+
+Use JDK 17, Android SDK 35 and NDK 27.2.12479018; set `JAVA_HOME` and `ANDROID_HOME` accordingly. On Windows, use `gradlew.bat`. Gradle invokes Cargo for `target-android` and packages its native library together with the host manifest and Java sources. The default ABI is `arm64-v8a`; `-Pabis=x86_64` builds for an x86-64 emulator after installing that Rust target. Comma-separated ABIs build a universal APK.
+
+`assembleDebug` produces a debug-signed APK under `build/outputs/apk/debug/`. `assembleRelease` is unsigned unless `MIRUI_ANDROID_KEYSTORE`, `MIRUI_ANDROID_STORE_PASSWORD`, `MIRUI_ANDROID_KEY_ALIAS`, and `MIRUI_ANDROID_KEY_PASSWORD` are configured. Keep signing keys outside the source tree.
 
 iOS:
 

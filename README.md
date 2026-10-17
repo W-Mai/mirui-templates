@@ -18,7 +18,7 @@ cargo install cargo-generate
 | `esp32c3` | Single-crate ESP32-C3 embedded project, framebuffer-driven, esp-hal stack. |
 | `workspace` | Cargo workspace with one shared UI library and desktop, browser, ESP32-C3, Android, and iOS target crates. |
 | `wasm` | Browser target on the `web-canvas` (Canvas 2D) Surface backend. Builds and serves with [trunk](https://trunkrs.dev). |
-| `android` | Android NativeActivity project with a generation-time choice between direct WGPU and software rasterization. |
+| `android` | Gradle-packaged Android NativeActivity project with a generation-time choice between direct WGPU and software rasterization. |
 | `ios` | iPhone and iPad Xcode project with a generation-time choice between direct WGPU and software rasterization. |
 
 ## Backend and target coverage

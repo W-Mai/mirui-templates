@@ -105,6 +105,30 @@ def planned_files() -> dict[Path, bytes]:
         files[workspace / "src" / target.entry_name] = render(
             source_dir / f"{target.entry_name}.in", workspace_replacements
         )
+        if target.name == "android":
+            android_files = {
+                "build.gradle": "build.gradle.in",
+                "settings.gradle": "settings.gradle.in",
+                "gradle.properties": "gradle.properties.in",
+                ".gitignore": "gitignore.in",
+                "src/main/AndroidManifest.xml": "AndroidManifest.xml.in",
+            }
+            for destination, replacements in (
+                (standalone, standalone_replacements),
+                (workspace, workspace_replacements),
+            ):
+                for relative, source in android_files.items():
+                    files[destination / "android" / relative] = render(
+                        source_dir / source, replacements
+                    )
+                for wrapper in (
+                    "gradlew",
+                    "gradlew.bat",
+                    "gradle/wrapper/gradle-wrapper.jar",
+                    "gradle/wrapper/gradle-wrapper.properties",
+                ):
+                    source = source_dir / "wrapper" / wrapper
+                    files[destination / "android" / wrapper] = source.read_bytes()
         if target.name == "desktop":
             files[workspace / "build.rs"] = render(
                 source_dir / "build.rs.in", workspace_replacements
@@ -144,7 +168,9 @@ def planned_files() -> dict[Path, bytes]:
                 data = data.replace(
                     b"$(SRCROOT)/../target/", b"$(SRCROOT)/../../../target/"
                 )
-            destination = TEMPLATES / "workspace" / "targets" / target_name / relative_path
+            destination = (
+                TEMPLATES / "workspace" / "targets" / target_name / relative_path
+            )
             files[destination] = data
     return files
 
@@ -162,6 +188,8 @@ def write() -> int:
         if not path.exists() or path.read_bytes() != data:
             atomic_write(path, data)
             print(path.relative_to(ROOT))
+        if path.name == "gradlew":
+            path.chmod(path.stat().st_mode | 0o111)
     return 0
 
 
@@ -173,8 +201,10 @@ def check() -> int:
             continue
         failed = True
         print(f"out of date: {path.relative_to(ROOT)}")
+        if path.suffix == ".jar":
+            continue
         actual_text = actual.decode("utf-8", errors="replace").splitlines()
-        expected_text = expected.decode("utf-8").splitlines()
+        expected_text = expected.decode("utf-8", errors="replace").splitlines()
         for line in difflib.unified_diff(
             actual_text,
             expected_text,

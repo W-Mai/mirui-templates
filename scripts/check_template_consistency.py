@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import re
+import xml.etree.ElementTree as ET
 
 from materialize_templates import check as check_materialized
 
@@ -44,6 +45,29 @@ def main() -> None:
     if check_materialized() != 0:
         raise SystemExit("materialized templates are out of date")
 
+    for android in (TEMPLATES / "android", TEMPLATES / "workspace/targets/android"):
+        manifest = ET.parse(android / "android/src/main/AndroidManifest.xml")
+        attr = "{http://schemas.android.com/apk/res/android}"
+        activity = manifest.find("application/activity")
+        if (
+            activity is None
+            or activity.get(attr + "name") != "android.app.NativeActivity"
+        ):
+            raise SystemExit(f"{android}: missing NativeActivity")
+        library = activity.find("meta-data")
+        if library is None or library.get(attr + "value") != "mirui_android":
+            raise SystemExit(
+                f"{android}: manifest does not select the Cargo native library"
+            )
+        if 'name = "mirui_android"' not in (android / "Cargo.toml").read_text():
+            raise SystemExit(
+                f"{android}: native library name differs from the manifest"
+            )
+        if "package.metadata.android" in (android / "Cargo.toml").read_text():
+            raise SystemExit(f"{android}: duplicate cargo-apk manifest configuration")
+        if not (android / "android/gradlew").stat().st_mode & 0o111:
+            raise SystemExit(f"{android}: Gradle wrapper is not executable")
+
     versions = {
         name: mirui_version(TEMPLATES / name / "cargo-generate.toml")
         for name in ("android", "desktop", "esp32c3", "ios", "wasm", "workspace")
@@ -57,10 +81,12 @@ def main() -> None:
     )
     for manifest in manifest_sources:
         text = manifest.read_text()
-        if 'mirui = {' not in text:
+        if "mirui = {" not in text:
             continue
         if 'git = "https://github.com/W-Mai/mirui"' in text or "MIRUI_REV" in text:
-            raise SystemExit(f"{manifest}: mirui must resolve from the selected published version")
+            raise SystemExit(
+                f"{manifest}: mirui must resolve from the selected published version"
+            )
 
     standalone_dir = TEMPLATES / "esp32c3"
     workspace_dir = TEMPLATES / "workspace" / "targets" / "esp32c3"

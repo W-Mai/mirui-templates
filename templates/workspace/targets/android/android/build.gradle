@@ -1,0 +1,71 @@
+plugins {
+    id 'com.android.application' version '8.9.2'
+}
+
+def rustAbis = providers.gradleProperty('abis').getOrElse('arm64-v8a').split(',', -1).collect { it.trim() }
+def supportedAbis = ['arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64']
+if (rustAbis.isEmpty() || rustAbis.any { !supportedAbis.contains(it) } || rustAbis.toSet().size() != rustAbis.size()) {
+    throw new GradleException('abis must be a comma-separated list of distinct Android ABIs')
+}
+
+android {
+    namespace '{{android-package}}'
+    compileSdk 35
+    ndkVersion '27.2.12479018'
+
+    defaultConfig {
+        applicationId '{{android-package}}'
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName '0.1.0'
+        ndk { abiFilters.addAll(rustAbis) }
+    }
+
+    signingConfigs {
+        release {
+            def keystore = providers.environmentVariable('MIRUI_ANDROID_KEYSTORE').orNull
+            if (keystore != null) {
+                storeFile file(keystore)
+                storePassword providers.environmentVariable('MIRUI_ANDROID_STORE_PASSWORD').get()
+                keyAlias providers.environmentVariable('MIRUI_ANDROID_KEY_ALIAS').get()
+                keyPassword providers.environmentVariable('MIRUI_ANDROID_KEY_PASSWORD').get()
+            }
+        }
+    }
+    buildTypes {
+        release {
+            if (providers.environmentVariable('MIRUI_ANDROID_KEYSTORE').isPresent()) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+abstract class RustBuild extends Exec {
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDirectory()
+}
+
+androidComponents.onVariants(androidComponents.selector().all()) { variant ->
+    def rust = tasks.register("buildRust${variant.name.capitalize()}", RustBuild) {
+        outputs.upToDateWhen { false }
+        workingDir file('..')
+        doFirst {
+            delete outputDirectory.get().asFile
+            environment 'ANDROID_NDK_HOME', androidComponents.sdkComponents.ndkDirectory.get().asFile.absolutePath
+            def invocation = ['cargo', 'ndk', '--platform', android.defaultConfig.minSdk.toString(), '--output-dir', outputDirectory.get().asFile.absolutePath]
+            rustAbis.each { invocation.addAll(['--target', it]) }
+            invocation.addAll(['build', '--manifest-path', file('../Cargo.toml').absolutePath, '--package', 'target-android', '--lib'])
+            if (variant.buildType == 'release') {
+                invocation.add('--release')
+            }
+            commandLine invocation
+        }
+    }
+    variant.sources.jniLibs.addGeneratedSourceDirectory(rust) { it.outputDirectory }
+}

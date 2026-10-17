@@ -5,6 +5,7 @@ edition = "2024"
 authors = ["{{authors}}"]
 
 [lib]
+name = "mirui_android"
 crate-type = ["cdylib"]
 
 [dependencies]
@@ -12,16 +13,6 @@ mirui = { version = "{{mirui-version}}", features = ["wgpu-android"] }
 winit = { version = "0.30", features = ["android-native-activity"] }
 
 
-[package.metadata.android]
-package = "{{android-package}}"
-build_targets = ["aarch64-linux-android"]
-
-[package.metadata.android.sdk]
-min_sdk_version = 26
-target_sdk_version = 35
-
-[package.metadata.android.application]
-label = "{{project-name}}"
 [profile.release]
 opt-level = "s"
 lto = "fat"
