@@ -88,6 +88,8 @@ Use JDK 17, Android SDK 35 and NDK 27.2.12479018; set `JAVA_HOME` and `ANDROID_H
 
 `assembleDebug` produces a debug-signed APK under `build/outputs/apk/debug/`. `assembleRelease` is unsigned unless `MIRUI_ANDROID_KEYSTORE`, `MIRUI_ANDROID_STORE_PASSWORD`, `MIRUI_ANDROID_KEY_ALIAS`, and `MIRUI_ANDROID_KEY_PASSWORD` are configured. Keep signing keys outside the source tree.
 
+The manifest uses a placeholder application icon and disables cloud backup and device-to-device transfer. Customize `targets/android/android/src/main/res/drawable/ic_launcher.xml` and `targets/android/android/src/main/res/xml/data_extraction_rules.xml` for the application. `./gradlew lintDebug` treats Android lint warnings as errors.
+
 iOS:
 
 ```bash

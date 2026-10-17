@@ -190,7 +190,7 @@ jobs:
           echo "MIRUI_ANDROID_KEY_ALIAS=mirui-preview" >> "$GITHUB_ENV"
           echo "MIRUI_ANDROID_KEY_PASSWORD=mirui-preview" >> "$GITHUB_ENV"
       - name: Build
-        run: cd testfoo/android && ./gradlew assembleRelease
+        run: cd testfoo/android && ./gradlew assembleRelease lintRelease
       - name: Verify workspace target
         run: |
           MIRUI_VERSION=$(sed -n 's/^default = "\(.*\)"/\1/p' templates/workspace/cargo-generate.toml | head -1)
@@ -205,7 +205,7 @@ jobs:
             --define ios-bundle-id=rs.mirui.testworkspace \
             --silent
           cd testworkspace/targets/android/android
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease lintRelease
       - name: Verify and package preview APK
         run: |
           mkdir -p dist

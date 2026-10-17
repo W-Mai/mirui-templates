@@ -18,6 +18,8 @@ The `wgpu` selection renders mirui commands directly with WGPU. The `sw` selecti
 
 On Windows, use `gradlew.bat`. Open the `android/` directory in Android Studio to edit the host manifest or Java sources. The default ABI is `arm64-v8a`; for an x86-64 emulator, install the `x86_64-linux-android` Rust target and pass `-Pabis=x86_64`. Comma-separated ABIs build a universal APK. Each requested ABI needs its Rust target installed.
 
+The manifest uses a placeholder application icon and disables cloud backup and device-to-device transfer. Customize `android/src/main/res/drawable/ic_launcher.xml` and `android/src/main/res/xml/data_extraction_rules.xml` for the application. `./gradlew lintDebug` treats Android lint warnings as errors.
+
 `./gradlew assembleDebug` writes `build/outputs/apk/debug/{{project-name}}-debug.apk`. Debug signing uses the Android debug keystore. `./gradlew assembleRelease` produces an unsigned release APK unless all four signing environment variables are set: `MIRUI_ANDROID_KEYSTORE`, `MIRUI_ANDROID_STORE_PASSWORD`, `MIRUI_ANDROID_KEY_ALIAS`, and `MIRUI_ANDROID_KEY_PASSWORD`. Keep release keys outside the source tree.
 
 The generated application follows Android configuration changes instead of locking one orientation. Its mirui `App`, ECS world, and reactive state survive NativeActivity suspend/resume while the native window and swapchain are recreated. Focused text inputs open the native software keyboard, and native memory warnings release reconstructible caches without discarding application state.

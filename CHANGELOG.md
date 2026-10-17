@@ -44,6 +44,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Android manifests declare an application icon and exclude app data from cloud backup and device transfer; Android CI rejects lint warnings.
 - Desktop WGPU starters handle surface initialization errors from mirui 0.50.
 - Generated iOS and Android crates check on non-mobile hosts without importing mobile-only runtime entry points.
 - The workspace defaults to the shared app and desktop target so a root-level `cargo check` does not combine incompatible platform dependencies.

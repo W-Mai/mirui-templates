@@ -112,6 +112,8 @@ def planned_files() -> dict[Path, bytes]:
                 "gradle.properties": "gradle.properties.in",
                 ".gitignore": "gitignore.in",
                 "src/main/AndroidManifest.xml": "AndroidManifest.xml.in",
+                "src/main/res/xml/data_extraction_rules.xml": "data_extraction_rules.xml.in",
+                "src/main/res/drawable/ic_launcher.xml": "ic_launcher.xml.in",
             }
             for destination, replacements in (
                 (standalone, standalone_replacements),
