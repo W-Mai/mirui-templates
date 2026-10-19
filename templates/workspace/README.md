@@ -99,6 +99,8 @@ open targets/ios/ios/{{project-name}}.xcodeproj
 
 Select an iOS Simulator or a signing team and physical device in Xcode. The generated target uses the selected `ios-backend`.
 
+For a physical device, use a unique bundle identifier and keep signing credentials outside the generated project. Xcode Debug builds use Cargo's `dev` profile; Release builds use `release`. The Rust build and native linker share the workspace's `target` directory, independently of an inherited `CARGO_TARGET_DIR`.
+
 The `target-` package prefix avoids a collision with the `esp32c3` peripheral-access crate used by esp-hal.
 
 The ESP target contains a stub framebuffer flush closure. Copy `board.rs` from [`mirui-examples`](https://github.com/W-Mai/mirui-examples/tree/main/examples/esp32c3-animation), adjust the board wiring, and call it from `main` to drive the display.

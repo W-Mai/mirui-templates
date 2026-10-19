@@ -168,7 +168,7 @@ def planned_files() -> dict[Path, bytes]:
                 data = data.replace(b"lib{{crate_name}}.a", b"libtarget_ios.a")
                 data = data.replace(b"-l{{crate_name}}", b"-ltarget_ios")
                 data = data.replace(
-                    b"$(SRCROOT)/../target/", b"$(SRCROOT)/../../../target/"
+                    b"$(SRCROOT)/../target", b"$(SRCROOT)/../../../target"
                 )
             destination = (
                 TEMPLATES / "workspace" / "targets" / target_name / relative_path

@@ -11,6 +11,10 @@ rustup target add aarch64-apple-ios aarch64-apple-ios-sim
 open ios/{{project-name}}.xcodeproj
 ```
 
+For a physical device, select a signing team in the target's Signing & Capabilities settings and use a unique bundle identifier. Keep signing credentials outside the generated project.
+
+Xcode Debug builds use Cargo's `dev` profile; Release builds use `release`. The Rust build and native linker share the project's `target` directory, independently of an inherited `CARGO_TARGET_DIR`.
+
 The `wgpu` selection renders mirui commands directly with WGPU. The `sw` selection rasterizes into a retained RGBA framebuffer and uploads dirty regions through WGPU for presentation.
 
 The application supports iPhone and iPad portrait and landscape configurations. Its mirui `App`, ECS world, and reactive state survive normal suspend/resume while the drawable surface is recreated. Focused text inputs open the native software keyboard, and native memory warnings release reconstructible caches without discarding application state.
