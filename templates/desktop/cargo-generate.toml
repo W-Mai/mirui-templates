@@ -4,7 +4,7 @@ cargo_generate_version = ">=0.18.0"
 [placeholders.mirui-version]
 type = "string"
 prompt = "mirui version to depend on"
-default = "0.52"
+default = "0.53"
 regex = "^\\d+\\.\\d+(\\.\\d+)?$"
 
 [placeholders.backend]
