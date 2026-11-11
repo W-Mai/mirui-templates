@@ -1,27 +1,46 @@
-# mirui-templates
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/readme-hero-dark.svg" />
+  <img src="assets/readme-hero-light.svg" alt="Mirui project templates showing the generated app at desktop, mobile and ESP32-C3 viewport sizes" width="1280" />
+</picture>
 
 [![CI](https://github.com/W-Mai/mirui-templates/actions/workflows/ci.yml/badge.svg)](https://github.com/W-Mai/mirui-templates/actions/workflows/ci.yml)
 
-[cargo-generate](https://github.com/cargo-generate/cargo-generate) templates for [mirui](https://github.com/W-Mai/mirui), a `no_std` ECS-driven UI framework for embedded, mobile, desktop, Linux, and WebAssembly targets.
+Start a [Mirui](https://github.com/W-Mai/mirui) project with [cargo-generate](https://github.com/cargo-generate/cargo-generate). Choose a standalone target or share one UI across a workspace.
 
-## Install cargo-generate
+[Quick start](#quick-start) · [Templates](#available-templates) · [Backends](#backend-and-target-coverage) · [Preview](#mobile-preview)
+
+## Quick start
+
+Install `cargo-generate` and create a desktop project.
 
 ```bash
 cargo install cargo-generate
+cargo generate --git https://github.com/W-Mai/mirui-templates.git templates/desktop --name hello-mirui
+cd hello-mirui
+cargo run
 ```
+
+Use `templates/workspace` in the same command to generate a shared app and separate target crates. The template path is relative to the repository root. The generator prompts for the Mirui version and the rendering backends available for the selected template.
 
 ## Available templates
 
-| Template | Description |
-|----------|-------------|
-| `desktop` | Single-crate desktop project with a WGPU or SDL renderer. |
-| `esp32c3` | Single-crate ESP32-C3 embedded project, framebuffer-driven, esp-hal stack. |
-| `workspace` | Cargo workspace with one shared UI library and desktop, browser, ESP32-C3, Android, and iOS target crates. |
-| `wasm` | Browser target on the `web-canvas` (Canvas 2D) Surface backend. Builds and serves with [trunk](https://trunkrs.dev). |
-| `android` | Gradle-packaged Android NativeActivity project with a generation-time choice between direct WGPU and software rasterization. |
-| `ios` | iPhone and iPad Xcode project with a generation-time choice between direct WGPU and software rasterization. |
+- **[Workspace](templates/workspace/README.md)** · One shared UI library with desktop, browser, ESP32-C3, Android, and iOS targets.
+- **[Desktop](templates/desktop/README.md)** · Single-crate WGPU or SDL project.
+- **[WebAssembly](templates/wasm/README.md)** · Browser Canvas 2D with [Trunk](https://trunkrs.dev) for local development.
+- **[ESP32-C3](templates/esp32c3/README.md)** · Single-crate framebuffer app using esp-hal.
+- **[Android](templates/android/README.md)** · Gradle-packaged NativeActivity app with WGPU or software rasterization.
+- **[iOS](templates/ios/README.md)** · Xcode project for iPhone and iPad with WGPU or software rasterization.
+
+## Generated UI
+
+The generated application opens an interactive responsive card with mode buttons and a live slider. The same UI source runs across desktop, browser, mobile, and embedded targets; mobile roots keep content inside the current safe area automatically.
+
+Shared UI is declared with `#[compose]`. Each target creates its root and installs the UI with `app.compose(root, template_app::build_ui())`. Widget event bodies read their payload through `event`, such as `event.new` for slider changes.
 
 ## Backend and target coverage
+
+<details>
+<summary>CI build matrix</summary>
 
 | Runtime | Template | mirui feature | Verification |
 |---------|----------|---------------|--------------|
@@ -34,25 +53,15 @@ cargo install cargo-generate
 | iOS software | `ios`, `workspace/targets/ios` | `wgpu` | CI unsigned arm64 simulator app build |
 | ESP32-C3 framebuffer | `esp32c3`, `workspace/targets/esp32c3` | no backend feature | RISC-V cross-build; complete ST7735S wiring is verified in `mirui-examples` |
 
+</details>
+
+SDL projects build and statically link SDL2 through the `sdl2` crate's `bundled` and `static-link` features. A C compiler and CMake are needed to build; no separate SDL2 development package or `LIBRARY_PATH` setting is needed. A binary built for one operating system and architecture still depends on that platform's system libraries and cannot be treated as a universal executable.
+
 mirui also exposes `sdl-gpu`, `linux-fb`, `linux-drm`, and `nuttx`. These backends do not have dedicated generator templates in this repository. ESP32-S3, RP2040, STM32, and other MCUs can reuse the shared `no_std` app structure, but need target-specific allocator, clock, input, framebuffer flush, and panel code.
 
 The ESP32-C3 templates keep antialiasing and profiling explicit: enable `quad-aa` for transformed-edge quality or `perf` for frame timing. Both stay off by default so a generated firmware starts with the smaller embedded configuration.
 
-## Use a template
-
-```bash
-cargo generate --git https://github.com/W-Mai/mirui-templates.git templates/desktop --name hello-mirui
-cd hello-mirui
-cargo run
-```
-
-For the multi-target workspace, use `templates/workspace` in the same command. The directory argument is relative to the repository root. `--name` supplies the project name; the generator prompts for the compatible mirui version. Desktop, workspace, and mobile templates also prompt for their rendering paths. Generated manifests resolve mirui from the selected published version.
-
-SDL projects build and statically link SDL2 through the `sdl2` crate's `bundled` and `static-link` features. A C compiler and CMake are needed to build; no separate SDL2 development package or `LIBRARY_PATH` setting is needed. A binary built for one operating system and architecture still depends on that platform's system libraries and cannot be treated as a universal executable.
-
-The generated application opens an interactive responsive card with mode buttons and a live slider. The same UI source runs across desktop, browser, mobile, and embedded targets; mobile roots keep content inside the current safe area automatically.
-
-Shared UI is declared with `#[compose]`. Each target creates its root and installs the UI with `app.compose(root, template_app::build_ui())`. Widget event bodies read their payload through `event`, such as `event.new` for slider changes.
+## Mobile preview
 
 Successful `main` CI runs publish test-signed Android APKs and unsigned arm64 iOS Simulator archives on the mutable [`mobile-preview`](https://github.com/W-Mai/mirui-templates/releases/tag/mobile-preview) prerelease. Version tags receive the same normalized assets on their immutable release. The Android preview key is generated for each CI run and is not a production identity; physical iOS devices require an Apple signing team.
 
