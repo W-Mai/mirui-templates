@@ -28,7 +28,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
       - name: Install cargo-generate
         run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
       - name: Generate
@@ -41,6 +40,12 @@ jobs:
             --define mirui-version=$MIRUI_VERSION \
             --define backend=${{ matrix.backend }} \
             --silent
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: testfoo
+      - name: Select C17 for bundled SDL on Ubuntu
+        if: matrix.backend == 'sdl' && matrix.os == 'ubuntu-latest'
+        run: echo "CFLAGS=-std=gnu17" >> "$GITHUB_ENV"
       - name: Build
         shell: bash
         run: cd testfoo && cargo build
@@ -59,7 +64,6 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: riscv32imc-unknown-none-elf
-      - uses: Swatinem/rust-cache@v2
       - name: Install cargo-generate
         run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
       - name: Generate
@@ -75,6 +79,12 @@ jobs:
             --define ios-backend=wgpu \
             --define ios-bundle-id=rs.mirui.testfoo \
             --silent
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: testfoo
+      - name: Select C17 for bundled SDL on Ubuntu
+        if: matrix.backend == 'sdl'
+        run: echo "CFLAGS=-std=gnu17" >> "$GITHUB_ENV"
       - name: Build desktop crate
         run: cd testfoo && cargo build -p desktop
       - name: Check generated Rust formatting
@@ -103,7 +113,6 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: riscv32imc-unknown-none-elf
-      - uses: Swatinem/rust-cache@v2
       - name: Install cargo-generate
         run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
       - name: Generate
@@ -114,6 +123,9 @@ jobs:
             --name testfoo \
             --define mirui-version=$MIRUI_VERSION \
             --silent
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: testfoo
       - name: Build
         run: |
           cd testfoo
@@ -131,7 +143,6 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
-      - uses: Swatinem/rust-cache@v2
       - name: Install cargo-generate
         run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
       - name: Generate
@@ -142,6 +153,9 @@ jobs:
             --name testfoo \
             --define mirui-version=$MIRUI_VERSION \
             --silent
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: testfoo
       - name: Verify placeholder substitution
         run: |
           grep -q 'name = "testfoo"' testfoo/Cargo.toml
@@ -159,7 +173,6 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android
-      - uses: Swatinem/rust-cache@v2
       - name: Install cargo-generate
         run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
       - uses: actions/setup-java@v4
@@ -184,6 +197,9 @@ jobs:
             --define backend=${{ matrix.backend }} \
             --define android-package=rs.mirui.testfoo \
             --silent
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: testfoo
       - name: Configure preview signing
         run: |
           keytool -genkeypair -keystore /tmp/mirui-preview.keystore -storepass mirui-preview -keypass mirui-preview -alias mirui-preview -keyalg RSA -keysize 2048 -validity 2 -dname "CN=mirui CI preview"
@@ -238,7 +254,6 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-apple-ios-sim
-      - uses: Swatinem/rust-cache@v2
       - name: Install cargo-generate
         run: cargo install cargo-generate --version ${{ env.CARGO_GENERATE_VERSION }} --locked
       - name: Generate
@@ -251,6 +266,9 @@ jobs:
             --define backend=${{ matrix.backend }} \
             --define ios-bundle-id=rs.mirui.testfoo \
             --silent
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: testfoo
       - name: Build Rust library
         run: cd testfoo && cargo build --target aarch64-apple-ios-sim
       - name: Build unsigned simulator application
